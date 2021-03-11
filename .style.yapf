@@ -1,0 +1,5 @@
+# https://github.com/fcurella/yapf-django
+[style]
+based_on_style=pep8
+column_limit=119
+dedent_closing_brackets=True
