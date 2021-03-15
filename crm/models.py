@@ -79,5 +79,49 @@ class Employee(models.Model):
 
 class EmployeeLog(models.Model):
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
-    log_date = models.DateTimeField()
+    disability_start = models.DateTimeField()
+    disability_end = models.DateTimeField()
     description = models.JSONField()  # type: ignore
+
+
+class Aircraft(models.Model):
+    tail_code = models.TextField(max_length=10)
+    aircraft_model = models.TextField(max_length=255)
+    mtow_weight_kg = models.PositiveIntegerField()
+    max_payload_kg = models.PositiveIntegerField()
+    range_of_flight_km = models.PositiveSmallIntegerField()
+    cargo_volume_m = models.PositiveSmallIntegerField()
+    fuel_capacity_kg = models.PositiveIntegerField()
+    takeoff_length_m = models.PositiveIntegerField()
+    landing_length_m = models.PositiveIntegerField()
+    speed_kmh = models.PositiveSmallIntegerField()
+
+
+class AircraftDymanicInfo(models.Model):
+    aircraft = models.ForeignKey(Aircraft, on_delete=models.CASCADE)
+    economy_class_cap = models.PositiveSmallIntegerField()
+    business_class_cap = models.PositiveSmallIntegerField()
+    first_class_cap = models.PositiveSmallIntegerField()
+    fuel_remaining_kg = models.PositiveIntegerField()
+
+
+class AircraftDeviceLife(models.Model):
+    aircraft = models.ForeignKey(Aircraft, on_delete=models.CASCADE)
+    device_name = models.CharField(max_length=1024)
+    latest_update = models.DateTimeField()
+    max_operation_time = models.DurationField()
+    max_operation_cycles = models.PositiveIntegerField()
+    total_operation_time = models.DurationField()
+    total_operation_cycles = models.PositiveIntegerField()
+    after_service_time = models.DurationField()
+    after_service_cycles = models.PositiveIntegerField()
+    service_time_period = models.DurationField()
+    service_cycles_period = models.PositiveIntegerField()
+
+
+class AircraftLog(models.Model):
+    aircraft = models.ForeignKey(Aircraft, on_delete=models.PROTECT)
+    event_datetime = models.DateTimeField()
+    event_description = models.TextField()
+    can_it_fly = models.BooleanField()
+    # event_type = ???
