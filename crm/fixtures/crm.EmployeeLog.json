@@ -1,14 +1,2 @@
 [
-{
-    "model": "crm.employeelog",
-    "pk": 1,
-    "fields": {
-        "employee": 1,
-        "disability_start": "2021-03-16T13:53:55Z",
-        "disability_end": "2021-03-16T13:53:57Z",
-        "description": {
-            "is_dead": true
-        }
-    }
-}
 ]

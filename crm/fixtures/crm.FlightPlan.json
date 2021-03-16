@@ -13,5 +13,20 @@
         "start_date": "2021-03-16",
         "end_date": "2021-03-16"
     }
+},
+{
+    "model": "crm.flightplan",
+    "pk": 2,
+    "fields": {
+        "planning_departure_time": "21:03:42",
+        "planning_arrival_time": "21:03:43",
+        "source": 1,
+        "destination": 1,
+        "flight_code": "N-1234",
+        "passanger_capacity": 1,
+        "days_of_week": "[\"1\"]",
+        "start_date": "2021-03-16",
+        "end_date": "2021-03-16"
+    }
 }
 ]
