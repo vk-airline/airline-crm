@@ -48,8 +48,6 @@ repos:
             Django,
             psycopg2-binary,
             django-timezone-field,
-            django-cities,
-            django-cities-light,
         ]
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: 'v0.812'
@@ -63,6 +61,4 @@ repos:
             # runtime dependencies
             psycopg2-binary,
             django-timezone-field,
-            django-cities,
-            django-cities-light,
         ]

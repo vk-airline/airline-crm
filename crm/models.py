@@ -2,8 +2,6 @@ from django.db import models
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.auth import get_user_model
 from timezone_field import TimeZoneField
-# from cities.models import City, Country
-from cities_light.models import City, Country
 
 
 class Airport(models.Model):
@@ -14,8 +12,8 @@ class Airport(models.Model):
     longitude = models.DecimalField(max_digits=7, decimal_places=5)
     altitude = models.IntegerField()
     timezone = TimeZoneField()
-    country = models.ForeignKey(Country, on_delete=models.CASCADE)
-    city = models.ForeignKey(City, on_delete=models.CASCADE)
+    country = models.CharField(max_length=255)
+    city = models.CharField(max_length=255)
 
     def __str__(self):
         return self.name
