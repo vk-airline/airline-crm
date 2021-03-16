@@ -8,16 +8,26 @@ from .models import (
     Occupation,
     Employee,
     EmployeeLog,
+    Aircraft,
+    AircraftDynamicInfo,
+    AircraftDeviceLife,
+    AircraftLog,
 )
 
-admin.site.register((
-    Airport,
-    Runway,
-    FlightPlan,
-    Flight,
-    Occupation,
-    Employee,
-    EmployeeLog,
-))
+admin.site.register(
+    (
+        Airport,
+        Runway,
+        FlightPlan,
+        Flight,
+        Occupation,
+        Employee,
+        EmployeeLog,
+        Aircraft,
+        AircraftDynamicInfo,
+        AircraftDeviceLife,
+        AircraftLog,
+    )
+)
 
 # Register your models here.
