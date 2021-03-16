@@ -1,0 +1,18 @@
+[
+{
+    "model": "crm.occupation",
+    "pk": 1,
+    "fields": {
+        "name": "Pilot",
+        "description": "ksdjf"
+    }
+},
+{
+    "model": "crm.occupation",
+    "pk": 2,
+    "fields": {
+        "name": "Steward",
+        "description": "sdf"
+    }
+}
+]

@@ -1,0 +1,17 @@
+[
+{
+    "model": "crm.airport",
+    "pk": 1,
+    "fields": {
+        "iata": "LED",
+        "icao": "ULLI",
+        "name": "Pulkovo",
+        "latitude": "59.80290",
+        "longitude": "30.26780",
+        "altitude": 24,
+        "timezone": "Europe/Moscow",
+        "country": 192,
+        "city": 16783
+    }
+}
+]

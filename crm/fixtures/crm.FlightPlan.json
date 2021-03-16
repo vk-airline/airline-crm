@@ -1,0 +1,17 @@
+[
+{
+    "model": "crm.flightplan",
+    "pk": 1,
+    "fields": {
+        "planning_departure_time": "13:54:21",
+        "planning_arrival_time": "13:54:22",
+        "source": 1,
+        "destination": 1,
+        "flight_code": "AR-23",
+        "passanger_capacity": 3120,
+        "days_of_week": "[\"1\"]",
+        "start_date": "2021-03-16",
+        "end_date": "2021-03-16"
+    }
+}
+]
