@@ -16,6 +16,7 @@ services:
       - DATABASE_PASSWORD=${DATABASE_PASSWORD}
       - DATABASE_HOST=db
       - DATABASE_PORT=5432
+      - SECRET_KEY=${SECRET_KEY}
     volumes:
       - .:/code
     ports:
