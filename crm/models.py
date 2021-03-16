@@ -17,6 +17,9 @@ class Airport(models.Model):
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
     city = models.ForeignKey(City, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return self.name
+
 
 RUNWAY_CATEGORIES = (
     (0, "I"),
@@ -55,32 +58,30 @@ class FlightPlan(models.Model):
     start_date = models.DateField()
     end_date = models.DateField()
 
-
-class Flight(models.Model):
-    flight_plan = models.ForeignKey(FlightPlan, on_delete=models.CASCADE)
-    planning_departure_datetime = models.DateTimeField()
-    planning_arrival_datetime = models.DateTimeField()
-    actual_departure_datetime = models.DateTimeField()
-    actual_arrival_datetime = models.DateTimeField()
-    destination = models.ForeignKey(Airport, on_delete=models.CASCADE)
-    has_arrived = models.BooleanField()
-    # aircraft = models.ForeignKey(Aircraft, on_delete=models.CASCADE)
+    def __str__(self):
+        return self.flight_code
 
 
 class Occupation(models.Model):
     name = models.CharField(max_length=255, unique=True)
-    description = models.TextField()
+    description = models.TextField(null=True)
+
+    def __str__(self):
+        return self.name
 
 
 class Employee(models.Model):
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     occupation = models.ForeignKey(Occupation, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return f'{self.user.first_name} {self.user.last_name}'
+
 
 class EmployeeLog(models.Model):
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
-    disability_start = models.DateTimeField()
-    disability_end = models.DateTimeField()
+    disability_start = models.DateTimeField(null=True)
+    disability_end = models.DateTimeField(null=True)
     description = models.JSONField()  # type: ignore
 
 
@@ -96,8 +97,11 @@ class Aircraft(models.Model):
     landing_length_m = models.PositiveIntegerField()
     speed_kmh = models.PositiveSmallIntegerField()
 
+    def __str__(self):
+        return self.tail_code
 
-class AircraftDymanicInfo(models.Model):
+
+class AircraftDynamicInfo(models.Model):
     aircraft = models.ForeignKey(Aircraft, on_delete=models.CASCADE)
     economy_class_cap = models.PositiveSmallIntegerField()
     business_class_cap = models.PositiveSmallIntegerField()
@@ -123,5 +127,16 @@ class AircraftLog(models.Model):
     aircraft = models.ForeignKey(Aircraft, on_delete=models.PROTECT)
     event_datetime = models.DateTimeField()
     event_description = models.TextField()
-    can_it_fly = models.BooleanField()
+    is_operational = models.BooleanField()
     # event_type = ???
+
+
+class Flight(models.Model):
+    flight_plan = models.ForeignKey(FlightPlan, on_delete=models.CASCADE)
+    planning_departure_datetime = models.DateTimeField()
+    planning_arrival_datetime = models.DateTimeField()
+    actual_departure_datetime = models.DateTimeField()
+    actual_arrival_datetime = models.DateTimeField()
+    destination = models.ForeignKey(Airport, on_delete=models.CASCADE)
+    has_arrived = models.BooleanField()
+    aircraft = models.ForeignKey(Aircraft, on_delete=models.CASCADE)
