@@ -3,11 +3,12 @@ from django.http import HttpResponse
 
 
 # Create your views here.
+from django.shortcuts import render
 
 
 @login_required
 def index(request):
-    return HttpResponse("AIRLINE CRM")
+    return render(request, "index.html")
 
 
 @permission_required('crm.view_aircraft')

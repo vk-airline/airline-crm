@@ -1,0 +1,16 @@
+{% block sidebar %}
+    <div class="side-bar">
+    <ul>
+        <li>
+        {% if perms.crm.view_aircraft%}
+        <a href="{% url 'crm:aircrafts' %}"> Aircrafts</a>
+        {% endif %}
+        </li>
+        <li>
+        {% if perms.crm.view_aircraftdevicelife %}
+        <a href="{% url 'crm:aircrafts devices' %}">Aircraft Devices</a>
+        {% endif %}
+        </li>
+    </ul>
+    </div>
+{% endblock %}
