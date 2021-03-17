@@ -1,7 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.views.generic import ListView
-from crm.models import Aircraft, AircraftDeviceLife
+from .models import Aircraft, AircraftDeviceLife
 
 # Create your views here.
 from django.shortcuts import render
