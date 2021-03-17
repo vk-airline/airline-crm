@@ -1,0 +1,39 @@
+
+.side-bar {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    width: 200px;
+    border-style: solid;
+    border-radius: 10px;
+    border-width: 1px;
+    border-color: lightskyblue;
+    background-color: white;
+}
+
+
+.menu-item:hover {
+    border-style: solid;
+    border-radius: 5px;
+    border-width: 1px;
+    background-color: skyblue;
+    color: white;
+}
+
+.menu-item {
+    display: block;
+    color: black;
+    text-align: center;
+    padding: 5px;
+    text-decoration: none;
+}
+
+.logout-item {
+    color: red;
+}
+
+.logout-item:hover {
+    background-color: red;
+    color: white;
+    border-color: lightskyblue;
+}
