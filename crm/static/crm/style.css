@@ -1,31 +1,33 @@
-
-.side-bar {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-    width: 200px;
-    border-style: solid;
-    border-radius: 10px;
-    border-width: 1px;
-    border-color: lightskyblue;
-    background-color: white;
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #333;
 }
 
-
-.menu-item:hover {
-    border-style: solid;
-    border-radius: 5px;
-    border-width: 1px;
-    background-color: skyblue;
-    color: white;
+li {
+  float: left;
 }
 
-.menu-item {
-    display: block;
-    color: black;
+li a {
+  display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+/* Change the link color to #111 (black) on hover */
+li a:hover {
+  background-color: #111;
+}
+
+table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+    border-spacing: 5px;
     text-align: center;
-    padding: 5px;
-    text-decoration: none;
 }
 
 .logout-item {

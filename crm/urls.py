@@ -1,10 +1,9 @@
 from django.urls import path
-
-from . import views
+from crm.views import index, AircraftsView, AircraftsDevicesView
 
 app_name = "crm"
 urlpatterns = [
-    path('', views.index, name='index'),
-    path('aircrafts', views.aircrafts_view, name='aircrafts'),
-    path('aircrafts_devices', views.aircrafts_devices, name='aircrafts devices'),
+    path('', index, name='index'),
+    path('aircrafts', AircraftsView.as_view(), name='aircrafts'),
+    path('aircrafts_devices/', AircraftsDevicesView.as_view(), name='aircrafts devices'),
 ]

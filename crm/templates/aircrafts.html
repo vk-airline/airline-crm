@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'crm/style.css' %}">
+</head>
+<body>
+{% block content %}
+    <h2>Aircraft devices</h2>
+    {% include "menu.html" %}
+    <table style="width:100%">
+        <tr>
+            <th>Tail code</th>
+            <th>Aircraft model</th>
+            <th>MTOW</th>
+            <th>Max payload</th>
+            <th>Range of flight</th>
+            <th>Cargo volume</th>
+            <th>Fuel capacity</th>
+            <th>Takeoff length</th>
+            <th>Landing length</th>
+            <th>Speed</th>
+
+        </tr>
+        {% for aircraft in object_list %}
+            <tr>
+                <td>{{ aircraft.tail_code }}</td>
+                <td>{{ aircraft.aircraft_model }}</td>
+                <td>{{ aircraft.mtow_weight_kg }}</td>
+                <td>{{ aircraft.max_payload_kg }}</td>
+                <td>{{ aircraft.range_of_flight_km }}</td>
+                <td>{{ aircraft.cargo_volume_m }}</td>
+                <td>{{ aircraft.fuel_capacity_kg }}</td>
+                <td>{{ aircraft.takeoff_length_m }}</td>
+                <td>{{ aircraft.landing_length_m }}</td>
+                <td>{{ aircraft.speed_kmh }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endblock %}
+</body>
+</html>

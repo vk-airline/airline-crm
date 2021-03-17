@@ -1,16 +1,18 @@
 {% block sidebar %}
-
     <ul class="side-bar">
+        <li class="menu-item">
+            <a  href="{% url 'crm:index' %}">Main page</a>
+        </li>
         {% if perms.crm.view_aircraft %}
-            <li>
-                <a class="menu-item" href="{% url 'crm:aircrafts' %}"> Aircrafts</a>
+            <li class="menu-item">
+                <a  href="{% url 'crm:aircrafts' %}"> Aircrafts</a>
             </li>
         {% endif %}
 
 
         {% if perms.crm.view_aircraftdevicelife %}
-            <li>
-                <a class="menu-item" href="{% url 'crm:aircrafts devices' %}">Aircraft Devices</a>
+            <li class="menu-item">
+                <a href="{% url 'crm:aircrafts devices' %}">Aircraft Devices</a>
             </li>
         {% endif %}
         <li>
