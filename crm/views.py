@@ -12,13 +12,13 @@ def index(request):
     return render(request, "index.html")
 
 
-class AircraftsView(ListView, PermissionRequiredMixin):
+class AircraftsView(PermissionRequiredMixin, ListView):
     permission_required = "crm.view_aircraft"
     model = Aircraft
     template_name = "aircrafts.html"
 
 
-class AircraftsDevicesView(ListView, PermissionRequiredMixin):
+class AircraftsDevicesView(PermissionRequiredMixin, ListView):
     permission_required = "crm.view_aircraftdevicelife"
     model = AircraftDeviceLife
     template_name = "devices.html"
