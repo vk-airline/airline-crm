@@ -1,10 +1,11 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import PermissionRequiredMixin, LoginRequiredMixin
+from django.utils import timezone
 from django.views.generic import ListView, DetailView
-from .models import Employee, Aircraft, AircraftDeviceLife
+from .models import Employee, EmployeeLog, Aircraft, AircraftDeviceLife
 
 # Create your views here.
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render
 
 
 @login_required
@@ -38,5 +39,7 @@ class EmployeeView(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['availability'] = 'Not available'  # Create Employee
+        context['disabilities'] = EmployeeLog.objects.filter(employee=self.get_object(),
+                                                             disability_end__gte=timezone.now()).order_by(
+            'disability_start')
         return context

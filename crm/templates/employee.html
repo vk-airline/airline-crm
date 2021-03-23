@@ -7,11 +7,19 @@
     <link rel="stylesheet" type="text/css" href="{% static 'crm/style.css' %}">
 </head>
 <body>
-{% include "menu.html" %}
-<h2> Username: {{ object.user }}  </h2>
-<p> First name: {{ object.user.first_name }} </p>
-<p> Last name: {{ object.user.last_name }} </p>
-<p> Occupation: {{ object.occupation }} </p>
-<b> Available: {{ availability }} </b>
+{% block content %}
+    {% include "menu.html" %}
+    <h2> Username: {{ object.user }}  </h2>
+    <p> First name: {{ object.user.first_name }} </p>
+    <p> Last name: {{ object.user.last_name }} </p>
+    <p> Occupation: {{ object.occupation }} </p>
+    {% for dis in disabilities %}
+        <div style="background-color: red">
+        <p> {{ dis.disability_start }}</p>
+        <p> {{ dis.disability_end }} </p>
+        <p>{{ dis.description }} </p>
+        </div>
+    {% endfor %}
+{% endblock %}
 </body>
 </html>
