@@ -80,7 +80,7 @@ class EmployeeLog(models.Model):
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
     disability_start = models.DateTimeField(null=True)
     disability_end = models.DateTimeField(null=True)
-    description = models.JSONField()  # type: ignore
+    description = models.CharField(max_length=1024)
 
 
 class Aircraft(models.Model):
@@ -111,22 +111,28 @@ class AircraftDeviceLife(models.Model):
     aircraft = models.ForeignKey(Aircraft, on_delete=models.CASCADE)
     device_name = models.CharField(max_length=1024)
     latest_update = models.DateTimeField()
-    max_operation_time = models.DurationField()
+    max_operation_time_h = models.PositiveIntegerField()
     max_operation_cycles = models.PositiveIntegerField()
-    total_operation_time = models.DurationField()
+    total_operation_time_h = models.PositiveIntegerField()
     total_operation_cycles = models.PositiveIntegerField()
-    after_service_time = models.DurationField()
+    after_service_time_h = models.PositiveIntegerField()
     after_service_cycles = models.PositiveIntegerField()
-    service_time_period = models.DurationField()
+    service_time_period_h = models.PositiveIntegerField()
     service_cycles_period = models.PositiveIntegerField()
+
+
+AIRCRAFT_EVENT_STATUS = (
+    (0, "Can fly with passengers"),
+    (1, "Can fly without passengers"),
+    (2, "Can't fly at all")
+)
 
 
 class AircraftLog(models.Model):
     aircraft = models.ForeignKey(Aircraft, on_delete=models.PROTECT)
     event_datetime = models.DateTimeField()
     event_description = models.TextField()
-    is_operational = models.BooleanField()
-    # event_type = ???
+    event_type = models.SmallIntegerField(choices=AIRCRAFT_EVENT_STATUS)
 
 
 class Flight(models.Model):

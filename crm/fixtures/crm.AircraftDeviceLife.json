@@ -4,16 +4,16 @@
     "pk": 1,
     "fields": {
         "aircraft": 1,
-        "device_name": "Engine",
-        "latest_update": "2021-03-16T13:52:52Z",
-        "max_operation_time": "02:46:40",
-        "max_operation_cycles": 21,
-        "total_operation_time": "1 10:13:33",
-        "total_operation_cycles": 32,
-        "after_service_time": "00:02:03",
-        "after_service_cycles": 312,
-        "service_time_period": "00:05:12",
-        "service_cycles_period": 312
+        "device_name": "Some device",
+        "latest_update": "2021-03-23T08:48:22Z",
+        "max_operation_time_h": 1,
+        "max_operation_cycles": 1,
+        "total_operation_time_h": 1,
+        "total_operation_cycles": 1,
+        "after_service_time_h": 1,
+        "after_service_cycles": 1,
+        "service_time_period_h": 1,
+        "service_cycles_period": 1
     }
 }
 ]
