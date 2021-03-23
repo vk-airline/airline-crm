@@ -73,7 +73,7 @@ class Employee(models.Model):
     occupation = models.ForeignKey(Occupation, on_delete=models.CASCADE)
 
     def __str__(self):
-        return user.username
+        return self.user.username
 
 
 class EmployeeLog(models.Model):
