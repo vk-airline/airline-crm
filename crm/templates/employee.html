@@ -13,11 +13,11 @@
     <p> First name: {{ object.user.first_name }} </p>
     <p> Last name: {{ object.user.last_name }} </p>
     <p> Occupation: {{ object.occupation }} </p>
-    {% for dis in disabilities %}
+    {% for log in logs %}
         <div style="background-color: red">
-        <p> {{ dis.disability_start }}</p>
-        <p> {{ dis.disability_end }} </p>
-        <p>{{ dis.description }} </p>
+        <p> {{ log.disability_start }}</p>
+        <p> {{ log.disability_end }} </p>
+        <p>{{ log.description }} </p>
         </div>
     {% endfor %}
 {% endblock %}

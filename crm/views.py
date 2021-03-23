@@ -39,7 +39,8 @@ class EmployeeView(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['disabilities'] = EmployeeLog.objects.filter(employee=self.get_object(),
-                                                             disability_end__gte=timezone.now()).order_by(
-            'disability_start')
+        context['logs'] = EmployeeLog.objects.filter(employee=self.get_object(),
+                                                     disability_end__lte=timezone.now() + timezone.timedelta(days=30),
+                                                     disability_end__gte=timezone.now()).order_by(
+            'disability_start')[:5]
         return context
