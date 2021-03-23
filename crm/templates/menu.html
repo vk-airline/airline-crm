@@ -1,0 +1,27 @@
+{% block sidebar %}
+    <ul class="side-bar">
+        <li class="menu-item">
+            <a  href="{% url 'crm:index' %}">Main page</a>
+        </li>
+        {% if perms.crm.view_aircraft %}
+            <li class="menu-item">
+                <a  href="{% url 'crm:aircrafts' %}"> Aircrafts</a>
+            </li>
+        {% endif %}
+
+
+        {% if perms.crm.view_aircraftdevicelife %}
+            <li class="menu-item">
+                <a href="{% url 'crm:aircrafts devices' %}">Aircraft Devices</a>
+            </li>
+        {% endif %}
+        {% if perms.crm.view_employee %}
+            <li class="menu-item">
+                <a href="{% url 'crm:employees' %}">Employees</a>
+            </li>
+        {% endif %}
+        <li>
+            <a class="menu-item logout-item" href="{% url 'logout' %}">Logout</a>
+        </li>
+    </ul>
+{% endblock %}

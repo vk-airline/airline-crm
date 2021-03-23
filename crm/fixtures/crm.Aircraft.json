@@ -1,0 +1,18 @@
+[
+{
+    "model": "crm.aircraft",
+    "pk": 1,
+    "fields": {
+        "tail_code": "H3-LI0",
+        "aircraft_model": "A319",
+        "mtow_weight_kg": 75500,
+        "max_payload_kg": 17700,
+        "range_of_flight_km": 6945,
+        "cargo_volume_m": 28,
+        "fuel_capacity_kg": 24085,
+        "takeoff_length_m": 1850,
+        "landing_length_m": 1250,
+        "speed_kmh": 821
+    }
+}
+]

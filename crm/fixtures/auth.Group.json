@@ -1,0 +1,35 @@
+[
+{
+    "model": "auth.group",
+    "pk": 1,
+    "fields": {
+        "name": "Pilots",
+        "permissions": [
+            60,
+            56,
+            68,
+            64,
+            52,
+            32,
+            44,
+            48,
+            40
+        ]
+    }
+},
+{
+    "model": "auth.group",
+    "pk": 2,
+    "fields": {
+        "name": "Stewards",
+        "permissions": [
+            60,
+            68,
+            52,
+            32,
+            44,
+            48
+        ]
+    }
+}
+]

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'crm/style.css' %}">
+</head>
+<body>
+{% block content %}
+    <h1>Aircraft devices</h1>
+    {% include "menu.html" %}
+    <table style="width:100%">
+        <tr>
+            <th>Aircraft</th>
+            <th>Device name</th>
+            <th>Last update</th>
+            <th>After service cycles</th>
+            <th>Service cycles period</th>
+            <th>Total operation cycles</th>
+            <th>Max operation cycles</th>
+            <th>After service time</th>
+            <th>Service time period</th>
+            <th>Total operation time</th>
+            <th>Max operation time</th>
+
+        </tr>
+        {% for device in object_list %}
+            <tr>
+                <td>{{ device.aircraft }}</td>
+                <td>{{ device.device_name }}</td>
+                <td>{{ device.latest_update }}</td>
+                <td>{{ device.after_service_cycles }}</td>
+                <td>{{ device.service_cycles_period }}</td>
+                <td>{{ device.total_operation_cycles }}</td>
+                <td>{{ device.max_operation_cycles }}</td>
+                <td>{{ device.after_service_time_h }}</td>
+                <td>{{ device.service_time_period_h }}</td>
+                <td>{{ device.total_operation_time_h }}</td>
+                <td>{{ device.max_operation_time_h }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endblock %}
+</body>
+</html>

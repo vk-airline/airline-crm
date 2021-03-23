@@ -1,0 +1,13 @@
+[
+{
+    "model": "crm.aircraftdynamicinfo",
+    "pk": 1,
+    "fields": {
+        "aircraft": 1,
+        "economy_class_cap": 102,
+        "business_class_cap": 120,
+        "first_class_cap": 24,
+        "fuel_remaining_kg": 123
+    }
+}
+]

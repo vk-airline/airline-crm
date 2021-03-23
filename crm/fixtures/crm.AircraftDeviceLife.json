@@ -1,0 +1,19 @@
+[
+{
+    "model": "crm.aircraftdevicelife",
+    "pk": 1,
+    "fields": {
+        "aircraft": 1,
+        "device_name": "Some device",
+        "latest_update": "2021-03-23T08:48:22Z",
+        "max_operation_time_h": 1,
+        "max_operation_cycles": 1,
+        "total_operation_time_h": 1,
+        "total_operation_cycles": 1,
+        "after_service_time_h": 1,
+        "after_service_cycles": 1,
+        "service_time_period_h": 1,
+        "service_cycles_period": 1
+    }
+}
+]

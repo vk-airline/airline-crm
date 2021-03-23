@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'crm/style.css' %}">
+</head>
+<body>
+{% block content %}
+    {% include "menu.html" %}
+    <h2> Username: {{ object.user }}  </h2>
+    <p> First name: {{ object.user.first_name }} </p>
+    <p> Last name: {{ object.user.last_name }} </p>
+    <p> Occupation: {{ object.occupation }} </p>
+    {% for log in logs %}
+        <div style="background-color: red">
+        <p> {{ log.disability_start }}</p>
+        <p> {{ log.disability_end }} </p>
+        <p>{{ log.description }} </p>
+        </div>
+    {% endfor %}
+{% endblock %}
+</body>
+</html>

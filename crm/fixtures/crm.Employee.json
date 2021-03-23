@@ -1,0 +1,10 @@
+[
+{
+    "model": "crm.employee",
+    "pk": 5,
+    "fields": {
+        "user": 5,
+        "occupation": 1
+    }
+}
+]

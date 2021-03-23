@@ -1,7 +1,11 @@
 from django.urls import path
+from crm.views import index, AircraftsView, AircraftsDevicesView, EmployeesView, EmployeeView
 
-from . import views
-
+app_name = "crm"
 urlpatterns = [
-    path('', views.index, name='index'),
+    path('', index, name='index'),
+    path('aircrafts', AircraftsView.as_view(), name='aircrafts'),
+    path('aircrafts_devices/', AircraftsDevicesView.as_view(), name='aircrafts devices'),
+    path('employees', EmployeesView.as_view(), name='employees'),
+    path('employees/<int:pk>/', EmployeeView.as_view(), name='employee view'),
 ]
