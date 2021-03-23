@@ -19,7 +19,7 @@
         </tr>
         {% for employee in object_list %}
             <tr>
-                <td>{{ employee.user }}</td>
+                <td><a href="{% url 'crm:employee view' employee.user_id%}">{{ employee.user }}</a></td>
                 <td>{{ employee.user.first_name }}</td>
                 <td>{{ employee.user.last_name }}</td>
                 <td>{{ employee.occupation }}</td>

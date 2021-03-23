@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'crm/style.css' %}">
+</head>
+<body>
+{% include "menu.html" %}
+<h2> Username: {{ object.user }}  </h2>
+<p> First name: {{ object.user.first_name }} </p>
+<p> Last name: {{ object.user.last_name }} </p>
+<p> Occupation: {{ object.occupation }} </p>
+<b> Available: {{ availability }} </b>
+</body>
+</html>
