@@ -18,6 +18,7 @@ repos:
     rev: v0.30.0
     hooks:
     -   id: yapf
+        exclude: "[a-zA-Z]*/(migrations)/(.)*"
   - repo: https://github.com/pycqa/bandit
     rev: 1.7.0
     hooks:
@@ -27,6 +28,7 @@ repos:
     rev: 3.8.4
     hooks:
       - id: flake8
+        exclude: "[a-zA-Z]*/(migrations)/(.)*"
         args: ['--max-line-length=119', '--max-complexity=12']
         additional_dependencies: [
             "flake8-bugbear",

@@ -1,4 +1,4 @@
-name: Django CI
+name: Django tests
 
 on:
   push:
@@ -10,21 +10,9 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-    strategy:
-      max-parallel: 4
-      matrix:
-        python-version: [ 3.9 ]
-
     steps:
     - uses: actions/checkout@v2
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install Dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-    - name: Run Tests
-      run: |
-        python manage.py test
+    - name: Build the Docker image
+      run: docker build . --file ./docker/crm/Dockerfile -t airline-crm:latest
+    - name: Run tests
+      run: docker run --rm -it -e SECRET_KEY=test airline-crm:latest python manage.py test
