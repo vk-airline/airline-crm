@@ -9,4 +9,4 @@ migrate:
 create: up migrate
 
 check: up
-	docker-compose run web pre-commit run --all-files
+	docker-compose run --rm web pre-commit run --all-files
