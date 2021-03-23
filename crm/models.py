@@ -121,11 +121,7 @@ class AircraftDeviceLife(models.Model):
     service_cycles_period = models.PositiveIntegerField()
 
 
-AIRCRAFT_EVENT_STATUS = (
-    (0, "Can fly with passengers"),
-    (1, "Can fly without passengers"),
-    (2, "Can't fly at all")
-)
+AIRCRAFT_EVENT_STATUS = ((0, "Can fly with passengers"), (1, "Can fly without passengers"), (2, "Can't fly at all"))
 
 
 class AircraftLog(models.Model):
