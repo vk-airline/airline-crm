@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'crm/style.css' %}">
+</head>
+<body>
+{% block content %}
+    <h1>Employees list</h1>
+    {% include "menu.html" %}
+    <table style="width:100%">
+        <tr>
+            <th>Username</th>
+            <th>First name</th>
+            <th>Last name</th>
+            <th>Occupation</th>
+        </tr>
+        {% for employee in object_list %}
+            <tr>
+                <td>{{ employee.user }}</td>
+                <td>{{ employee.user.first_name }}</td>
+                <td>{{ employee.user.last_name }}</td>
+                <td>{{ employee.occupation }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endblock %}
+</body>
+</html>
