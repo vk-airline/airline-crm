@@ -15,4 +15,4 @@ jobs:
     - name: Build the Docker image
       run: docker build . --file ./docker/crm/Dockerfile -t airline-crm:latest
     - name: Run tests
-      run: docker run --rm -it -e SECRET_KEY=test airline-crm:latest pre-commit run --all-files
+      run: docker run --rm -e SECRET_KEY=test airline-crm:latest pre-commit run --all-files
