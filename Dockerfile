@@ -6,10 +6,8 @@ WORKDIR /code
 COPY requirements.txt /code/
 RUN pip install -r requirements.txt
 
-COPY ./.pre-commit-config.yaml .
-
 RUN pip install pre-commit
-RUN git init
-RUN pre-commit install --install-hooks
+COPY ./.pre-commit-config.yaml .
+RUN git init && pre-commit install --install-hooks
 
 COPY . /code/
