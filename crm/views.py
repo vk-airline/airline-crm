@@ -3,14 +3,27 @@ from django.contrib.auth.mixins import PermissionRequiredMixin, LoginRequiredMix
 from django.utils import timezone
 from django.views.generic import ListView, DetailView
 from .models import Employee, EmployeeLog, Aircraft, AircraftDeviceLife
+from .tasks import sleep
+from django.http import HttpResponse
 
 # Create your views here.
 from django.shortcuts import render
+import time
 
 
 @login_required
 def index(request):
     return render(request, "index.html")
+
+
+def blocking(request):
+    time.sleep(10)
+    return HttpResponse("congratulations, you've just wasted 10 seconds of your life")
+
+
+def nonblocking(request):
+    sleep.delay(10)
+    return HttpResponse("that was quick, wasn't it?")
 
 
 class AircraftsView(PermissionRequiredMixin, ListView):
