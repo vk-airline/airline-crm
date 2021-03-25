@@ -13,6 +13,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Build the Docker image
-      run: docker build . --file ./docker/crm/Dockerfile -t airline-crm:latest
-    - name: Run tests
-      run: docker run --rm -e SECRET_KEY=test airline-crm:latest pre-commit run --all-files
+      run: docker-compose build app
+    - name: Run pre-commit checks
+      run: docker-compose run --no-deps app pre-commit run --all-files
