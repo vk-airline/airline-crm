@@ -13,6 +13,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Build the Docker image
-      run: docker-compose build app
+      run: docker-compose --env-file ./.env.dev build app
     - name: Run tests
-      run: docker-compose run --no-deps app python manage.py test
+      run: docker-compose --env-file ./.env.dev run --no-deps app python manage.py test
