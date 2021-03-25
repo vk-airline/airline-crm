@@ -9,6 +9,11 @@ WORKDIR /usr/src/app
 COPY requirements.txt /usr/src/app
 RUN pip install --no-cache-dir -r requirements.txt
 
+RUN pip install pre-commit
+COPY ./.pre-commit-config.yaml .
+RUN git init
+RUN pre-commit install --install-hooks
+
 COPY . /usr/src/app
 
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]

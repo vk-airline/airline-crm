@@ -1,0 +1,12 @@
+services:
+  app:
+    build:
+      dockerfile: ./docker/crm/Dockerfile.dev
+    environment:
+      - SECRET_KEY="not empty"
+    volumes:
+      - .:/usr/src/app
+
+  celery_worker:
+    environment:
+      - SECRET_KEY="not empty"

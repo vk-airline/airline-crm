@@ -4,24 +4,70 @@ services:
     environment:
       - POSTGRES_DB=${DATABASE_NAME}
       - POSTGRES_USER=${DATABASE_USER}
-      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+      - POSTGRES_PASSWORD=${DATABASE_PASS}
+    networks:
+      - main
+    ports:
+      - "${DATABASE_PORT}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
-  web:
-    build: ./docker/crm/
-    command: bash -c "while !</dev/tcp/db/${DATABASE_PORT}; do sleep 1; done; python manage.py runserver 0.0.0.0:8000"
+  rmq:
+    image: rabbitmq:3.8-management-alpine
     environment:
-      - DATABASE_NAME=${DATABASE_NAME}
-      - DATABASE_USER=${DATABASE_USER}
-      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASS}
+    networks:
+      - main
+    ports:
+      - "${RABBITMQ_PORT}:5672"
+      - "15672:15672"
+  app:
+    image: app-image
+    build:
+      context: .
+      dockerfile: ./docker/crm/Dockerfile
+    command: sh -c "./wait-for db:${DATABASE_PORT}
+                    && python manage.py migrate
+                    && python manage.py runserver 0.0.0.0:8000"
+    environment:
+      - SECRET_KEY
       - DATABASE_HOST=db
-      - DATABASE_PORT=${DATABASE_PORT}
-      - SECRET_KEY=${SECRET_KEY}
-    volumes:
-      - .:/code
+      - DATABASE_PORT
+      - DATABASE_NAME
+      - DATABASE_USER
+      - DATABASE_PASS
+      - RABBITMQ_USER
+      - RABBITMQ_PASS
+      - RABBITMQ_HOST=rmq
+      - RABBITMQ_PORT
+    networks:
+      - main
     ports:
       - "${WEB_SERVER_PORT}:8000"
     depends_on:
       - db
+      - rmq
+  celery_worker:
+    image: app-image
+    command: sh -c "./wait-for db:${DATABASE_PORT}
+                    && ./wait-for rmq:${RABBITMQ_PORT}
+                    && celery -A airline worker -l info"
+    environment:
+      - SECRET_KEY
+      - RABBITMQ_USER
+      - RABBITMQ_PASS
+      - RABBITMQ_HOST=rmq
+      - RABBITMQ_PORT
+    depends_on:
+      - app
+      - rmq
+      - db
+    restart: on-failure
+    networks:
+      - main
+
+networks:
+  main:
+
 volumes:
   pgdata:
