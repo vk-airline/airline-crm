@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import PermissionRequiredMixin, LoginRequiredMixin
 from django.utils import timezone
 from django.views.generic import ListView, DetailView
-from .models import Employee, EmployeeLog, Aircraft, AircraftDeviceLife
+from .models import Employee, EmployeeLog, Aircraft, AircraftDeviceLife, AircraftLog
 
 # Create your views here.
 from django.shortcuts import render
@@ -17,6 +17,22 @@ class AircraftsView(PermissionRequiredMixin, ListView):
     permission_required = "crm.view_aircraft"
     model = Aircraft
     template_name = "aircrafts.html"
+
+
+class AircraftView(PermissionRequiredMixin, DetailView):
+    permission_required = "crm.view_aircraft"
+    model = Aircraft
+    template_name = "aircraft.html"
+
+    def get_object(self, **kwargs):
+        return Aircraft.objects.get(id=self.kwargs['pk'])
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        aircraft = self.get_object()
+        context['devices'] = AircraftDeviceLife.objects.filter(aircraft=aircraft)
+        context['logs'] = AircraftLog.objects.filter(aircraft=aircraft).order_by('-event_datetime')
+        return context
 
 
 class AircraftsDevicesView(PermissionRequiredMixin, ListView):

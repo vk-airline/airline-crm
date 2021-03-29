@@ -26,7 +26,7 @@
         </tr>
         {% for aircraft in object_list %}
             <tr>
-                <td>{{ aircraft.tail_code }}</td>
+                <td><a href="{% url 'crm:aircraft view' aircraft.id%}">{{ aircraft.tail_code }}</a></td>
                 <td>{{ aircraft.aircraft_model }}</td>
                 <td>{{ aircraft.mtow_weight_kg }}</td>
                 <td>{{ aircraft.max_payload_kg }}</td>
