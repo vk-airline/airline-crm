@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "timezone_field",
+    "multiselectfield",
     "crm.apps.CrmConfig",
 ]
 
@@ -77,10 +78,10 @@ WSGI_APPLICATION = "airline.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.environ.get("DATABASE_NAME", "postgres"),
-        "USER": os.environ.get("DATABASE_USER", "postgres"),
-        "PASSWORD": os.environ.get("DATABASE_PASS", "postgres"),
-        "HOST": os.environ.get("DATABASE_HOST", "postgres"),
+        "NAME": os.environ.get("DATABASE_NAME"),
+        "USER": os.environ.get("DATABASE_USER"),
+        "PASSWORD": os.environ.get("DATABASE_PASS"),
+        "HOST": os.environ.get("DATABASE_HOST"),
         "PORT": int(os.environ.get("DATABASE_PORT", 5432)),
     }
 }
@@ -128,6 +129,8 @@ STATIC_URL = "/static/"
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
 ]
+
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 CELERY_TIMEZONE = TIME_ZONE
 CELERY_TASK_TRACK_STARTED = True

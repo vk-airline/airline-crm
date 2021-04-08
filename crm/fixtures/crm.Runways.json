@@ -1,0 +1,22 @@
+[
+{
+    "model": "crm.runway",
+    "pk": 1,
+    "fields": {
+        "airport": 1,
+        "length": 1000,
+        "category": 2,
+        "is_active": true
+    }
+},
+{
+    "model": "crm.runway",
+    "pk": 2,
+    "fields": {
+        "airport": 2,
+        "length": 3794,
+        "category": 2,
+        "is_active": true
+    }
+}
+]

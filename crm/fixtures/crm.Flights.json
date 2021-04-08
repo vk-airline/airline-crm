@@ -1,0 +1,128 @@
+[
+{
+    "model": "crm.flight",
+    "pk": 207,
+    "fields": {
+        "flight_plan": 84,
+        "planning_departure_datetime": "2021-04-09T06:00:00Z",
+        "planning_arrival_datetime": "2021-04-09T00:00:00Z",
+        "actual_departure_datetime": null,
+        "actual_arrival_datetime": null,
+        "actual_destination": null,
+        "has_arrived": false,
+        "aircraft": 1
+    }
+},
+{
+    "model": "crm.flight",
+    "pk": 208,
+    "fields": {
+        "flight_plan": 84,
+        "planning_departure_datetime": "2021-04-11T06:00:00Z",
+        "planning_arrival_datetime": "2021-04-11T00:00:00Z",
+        "actual_departure_datetime": null,
+        "actual_arrival_datetime": null,
+        "actual_destination": null,
+        "has_arrived": false,
+        "aircraft": 1
+    }
+},
+{
+    "model": "crm.flight",
+    "pk": 209,
+    "fields": {
+        "flight_plan": 84,
+        "planning_departure_datetime": "2021-04-13T06:00:00Z",
+        "planning_arrival_datetime": "2021-04-13T00:00:00Z",
+        "actual_departure_datetime": null,
+        "actual_arrival_datetime": null,
+        "actual_destination": null,
+        "has_arrived": false,
+        "aircraft": 1
+    }
+},
+{
+    "model": "crm.flight",
+    "pk": 210,
+    "fields": {
+        "flight_plan": 84,
+        "planning_departure_datetime": "2021-04-16T06:00:00Z",
+        "planning_arrival_datetime": "2021-04-16T00:00:00Z",
+        "actual_departure_datetime": null,
+        "actual_arrival_datetime": null,
+        "actual_destination": null,
+        "has_arrived": false,
+        "aircraft": 1
+    }
+},
+{
+    "model": "crm.flight",
+    "pk": 211,
+    "fields": {
+        "flight_plan": 84,
+        "planning_departure_datetime": "2021-04-18T06:00:00Z",
+        "planning_arrival_datetime": "2021-04-18T00:00:00Z",
+        "actual_departure_datetime": null,
+        "actual_arrival_datetime": null,
+        "actual_destination": null,
+        "has_arrived": false,
+        "aircraft": 1
+    }
+},
+{
+    "model": "crm.flight",
+    "pk": 212,
+    "fields": {
+        "flight_plan": 84,
+        "planning_departure_datetime": "2021-04-20T06:00:00Z",
+        "planning_arrival_datetime": "2021-04-20T00:00:00Z",
+        "actual_departure_datetime": null,
+        "actual_arrival_datetime": null,
+        "actual_destination": null,
+        "has_arrived": false,
+        "aircraft": 1
+    }
+},
+{
+    "model": "crm.flight",
+    "pk": 213,
+    "fields": {
+        "flight_plan": 84,
+        "planning_departure_datetime": "2021-04-23T06:00:00Z",
+        "planning_arrival_datetime": "2021-04-23T00:00:00Z",
+        "actual_departure_datetime": null,
+        "actual_arrival_datetime": null,
+        "actual_destination": null,
+        "has_arrived": false,
+        "aircraft": 1
+    }
+},
+{
+    "model": "crm.flight",
+    "pk": 214,
+    "fields": {
+        "flight_plan": 84,
+        "planning_departure_datetime": "2021-04-25T06:00:00Z",
+        "planning_arrival_datetime": "2021-04-25T00:00:00Z",
+        "actual_departure_datetime": null,
+        "actual_arrival_datetime": null,
+        "actual_destination": null,
+        "has_arrived": false,
+        "aircraft": 1
+    }
+},
+{
+    "model": "crm.flight",
+    "pk": 215,
+    "fields": {
+        "flight_plan": 84,
+        "planning_departure_datetime": "2021-04-27T06:00:00Z",
+        "planning_arrival_datetime": "2021-04-27T00:00:00Z",
+        "actual_departure_datetime": null,
+        "actual_arrival_datetime": null,
+        "actual_destination": null,
+        "has_arrived": false,
+        "aircraft": 1
+    }
+}
+]

@@ -1,32 +1,19 @@
 [
 {
     "model": "crm.flightplan",
-    "pk": 1,
+    "pk": 84,
     "fields": {
-        "planning_departure_time": "13:54:21",
-        "planning_arrival_time": "13:54:22",
+        "planning_departure_time": "00:00:00",
+        "planning_arrival_time": "06:00:00",
         "source": 1,
-        "destination": 1,
-        "flight_code": "AR-23",
-        "passanger_capacity": 3120,
-        "days_of_week": "[\"1\"]",
-        "start_date": "2021-03-16",
-        "end_date": "2021-03-16"
-    }
-},
-{
-    "model": "crm.flightplan",
-    "pk": 2,
-    "fields": {
-        "planning_departure_time": "21:03:42",
-        "planning_arrival_time": "21:03:43",
-        "source": 1,
-        "destination": 1,
-        "flight_code": "N-1234",
-        "passanger_capacity": 1,
-        "days_of_week": "[\"1\"]",
-        "start_date": "2021-03-16",
-        "end_date": "2021-03-16"
+        "destination": 2,
+        "flight_code": "ABC-1337",
+        "passanger_capacity": 600,
+        "days_of_week": "1,4,6",
+        "start_date": "2021-04-08",
+        "end_date": "2021-04-28",
+        "status": 6,
+        "description": "No available runways. Source runways: 1, Destination runways: 0"
     }
 }
 ]

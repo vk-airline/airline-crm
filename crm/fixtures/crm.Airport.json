@@ -13,5 +13,20 @@
         "country": "Russia",
         "city": "Saint-Petersburg"
     }
+},
+{
+    "model": "crm.airport",
+    "pk": 2,
+    "fields": {
+        "iata": "DME",
+        "icao": "UUDD",
+        "name": "Moscow Domodedovo Airport",
+        "latitude": "55.41600",
+        "longitude": "37.89795",
+        "altitude": 167,
+        "timezone": "Europe/Moscow",
+        "country": "Russia",
+        "city": "Moscow"
+    }
 }
 ]

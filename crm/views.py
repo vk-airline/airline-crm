@@ -1,29 +1,21 @@
+from celery import chain
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import PermissionRequiredMixin, LoginRequiredMixin
+from django.urls import reverse_lazy
 from django.utils import timezone
-from django.views.generic import ListView, DetailView
-from .models import Employee, EmployeeLog, Aircraft, AircraftDeviceLife, AircraftLog
-from .tasks import sleep
-from django.http import HttpResponse
+from django.views.generic import ListView, DetailView, FormView, DeleteView
 
-# Create your views here.
+from .forms import FlightForm, FlightPlanForm
+from .models import Employee, EmployeeLog, Aircraft, AircraftDeviceLife, AircraftLog, Flight, FlightPlan
+from .tasks import check_airports_availability, generate_schedules, assign_employees, create_flights
+from django.http import HttpResponse, HttpResponseRedirect
+
 from django.shortcuts import render
-import time
 
 
 @login_required
 def index(request):
     return render(request, "index.html")
-
-
-def blocking(request):
-    time.sleep(10)
-    return HttpResponse("congratulations, you've just wasted 10 seconds of your life")
-
-
-def nonblocking(request):
-    sleep.delay(10)
-    return HttpResponse("that was quick, wasn't it?")
 
 
 class AircraftsView(PermissionRequiredMixin, ListView):
@@ -54,9 +46,91 @@ class AircraftsDevicesView(PermissionRequiredMixin, ListView):
     template_name = "devices.html"
 
 
-class EmployeesView(LoginRequiredMixin, ListView):
+class EmployeesView(PermissionRequiredMixin, ListView):
+    permission_required = "crm.view_employee"
     model = Employee
     template_name = "employees.html"
+
+
+class FlightsView(PermissionRequiredMixin, ListView):
+    permission_required = "crm.view_flight"
+    model = Employee
+    template_name = "flights.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['flights'] = Flight.objects.filter(
+            planning_departure_datetime__gte=timezone.now() - timezone.timedelta(days=1),
+            planning_departure_datetime__lte=timezone.now() + timezone.timedelta(days=31)
+        ).order_by('planning_departure_datetime')
+        return context
+
+
+class FlightView(PermissionRequiredMixin, FormView):
+    permission_required = "crm.view_flight"
+    form_class = FlightForm
+    success_url = reverse_lazy("crm:flights")
+    template_name = 'flight.html'
+
+    def get_form_kwargs(self):
+        form_kwargs = super().get_form_kwargs()
+        if 'pk' in self.kwargs:
+            form_kwargs['instance'] = Flight.objects.get(pk=int(self.kwargs['pk']))
+        return form_kwargs
+
+    def form_valid(self, form):
+        # Logic that checks updates
+        form.save()
+        return HttpResponseRedirect(self.success_url)
+
+
+class FlightDelete(DeleteView):
+    model = Flight
+    success_url = reverse_lazy('crm:flights')
+    template_name = 'flight_confirm_delete.html'
+
+
+class FlightPlansView(PermissionRequiredMixin, ListView):
+    permission_required = "crm.view_flightplan"
+    model = FlightPlan
+    template_name = "flightplans.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['plans'] = FlightPlan.objects.filter(
+            end_date__gte=timezone.now() - timezone.timedelta(days=1),
+        ).order_by('start_date')
+        return context
+
+
+class FlightPlanView(PermissionRequiredMixin, FormView):
+    permission_required = "crm.view_flightplan"
+    form_class = FlightPlanForm
+    success_url = reverse_lazy("crm:flight plans")
+    template_name = 'flightplan.html'
+
+    def get_form_kwargs(self):
+        form_kwargs = super().get_form_kwargs()
+        if 'pk' in self.kwargs:
+            form_kwargs['instance'] = FlightPlan.objects.get(pk=int(self.kwargs['pk']))
+        return form_kwargs
+
+    def form_valid(self, form):
+        if form.instance.status == 0:  # pending
+            form.save()
+            chain(check_airports_availability.s(form.instance.pk) |
+                  generate_schedules.s() |
+                  assign_employees.s() |
+                  create_flights.s()
+                  ).delay()
+            return HttpResponseRedirect(self.success_url)
+        return HttpResponse("You can't change status")
+
+
+class FlightPlanDelete(DeleteView):
+    model = FlightPlan
+    success_url = reverse_lazy('crm:flight plans')
+    template_name = 'flightplan_confirm_delete.html'
 
 
 class EmployeeView(LoginRequiredMixin, DetailView):

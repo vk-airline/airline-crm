@@ -1,4 +1,5 @@
 Django>=3.0,<4.0
 psycopg2-binary>=2.8
 django-timezone-field~=4.1.1
+django-multiselectfield~=0.1.12
 celery~=5.0.5
