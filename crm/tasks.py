@@ -82,8 +82,8 @@ def get_planned_available_aircraft(airport: Airport, datetime_point: datetime):
     all_aircraft = {aircraft for aircraft in get_actually_available_aircraft(airport)}
     logger.info(f"Now in airport {airport}: {all_aircraft}")
     flights = Flight.objects.filter(
-        Q(flight_plan__destination=airport, planning_arrival_datetime__lte=datetime_point) |
-        Q(flight_plan__source=airport, planning_departure_datetime__lte=datetime_point),
+        Q(flight_plan__destination=airport, planning_arrival_datetime__lt=datetime_point) |
+        Q(flight_plan__source=airport, planning_departure_datetime__lt=datetime_point),
         canceled=False).order_by('planning_arrival_datetime')
     for flight in flights:
         if flight.flight_plan.source == airport and flight.flight_plan.destination != airport:
@@ -126,7 +126,6 @@ def generate_schedules(self, start_dt: str):
     banned_flights = set(map(lambda f: (f.planning_departure_datetime, f.planning_arrival_datetime, f.flight_plan.pk),
                              banned_flights))
     logger.info(f"Banned flights: {banned_flights}")
-    Flight.objects.filter(canceled=False, planning_departure_datetime__gte=start_dt).delete()
     schedule = []
     available_aircraft = defaultdict(set)
     in_flight = []
@@ -169,6 +168,7 @@ def create_flights(data):
     start_dt, schedule, employees = data
     logger.info(f"Schedule: {schedule} Employees: {employees}")
     # TODO Make all queries in single transaction
+    Flight.objects.filter(canceled=False, planning_departure_datetime__gte=start_dt).delete()
     for departure, arrival, aircraft, plan_pk in schedule:
         plan = FlightPlan.objects.get(pk=plan_pk)
         aircraft = Aircraft.objects.get(pk=aircraft)
