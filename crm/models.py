@@ -47,14 +47,21 @@ DAYS_OF_WEEK = (
 
 
 class FlightPlan(models.Model):
+    PENDING = 0
+    PROCESSING_FPM = 1
+    ERROR_FPM = 2
+    PENDING_EPM = 3
+    PROCESSING_EPM = 4
+    ERROR_EPM = 5
+    SUCCESS = 6
     FLIGHT_PLAN_CHOICES = (
-        (0, "Pending"),
-        (1, "Processing FPM"),
-        (2, "Error FPM"),
-        (3, "Pending EPM"),
-        (4, "Processing EPM"),
-        (5, "Error EPM"),
-        (6, "Success")
+        (PENDING, "Pending"),
+        (PROCESSING_FPM, "Processing FPM"),
+        (ERROR_FPM, "Error FPM"),
+        (PENDING_EPM, "Pending EPM"),
+        (PROCESSING_EPM, "Processing EPM"),
+        (ERROR_EPM, "Error EPM"),
+        (SUCCESS, "Success")
     )
     planning_departure_time = models.TimeField()
     planning_arrival_time = models.TimeField()
@@ -65,7 +72,7 @@ class FlightPlan(models.Model):
     days_of_week = MultiSelectField(choices=DAYS_OF_WEEK)
     start_date = models.DateField()
     end_date = models.DateField()
-    status = models.SmallIntegerField(choices=FLIGHT_PLAN_CHOICES, default=0)
+    status = models.SmallIntegerField(choices=FLIGHT_PLAN_CHOICES, default=PENDING)
     description = models.TextField(default="", blank=True)
 
     def get_absolute_url(self):
@@ -153,8 +160,11 @@ class Flight(models.Model):
     actual_departure_datetime = models.DateTimeField(blank=True, null=True)
     actual_arrival_datetime = models.DateTimeField(blank=True, null=True)
     actual_destination = models.ForeignKey(Airport, blank=True, null=True, on_delete=models.CASCADE)
-    has_arrived = models.BooleanField()
+    canceled = models.BooleanField(default=False)
     aircraft = models.ForeignKey(Aircraft, on_delete=models.CASCADE)
 
     def get_absolute_url(self):
         return reverse("crm:edit flight", kwargs={'pk': self.pk})
+
+    def __str__(self):
+        return f"{str(self.flight_plan)}: departure: {self.planning_departure_datetime} arrival: {self.planning_arrival_datetime}"

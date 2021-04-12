@@ -60,7 +60,7 @@ class FlightsView(PermissionRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['flights'] = Flight.objects.filter(
-            planning_departure_datetime__gte=timezone.now() - timezone.timedelta(days=1),
+            planning_departure_datetime__gte=timezone.now() - timezone.timedelta(days=7),
             planning_departure_datetime__lte=timezone.now() + timezone.timedelta(days=31)
         ).order_by('planning_departure_datetime')
         return context
@@ -116,10 +116,9 @@ class FlightPlanView(PermissionRequiredMixin, FormView):
         return form_kwargs
 
     def form_valid(self, form):
-        if form.instance.status == 0:  # pending
+        if form.instance.status == FlightPlan.PENDING:  # pending
             form.save()
-            chain(check_airports_availability.s(form.instance.pk) |
-                  generate_schedules.s() |
+            chain(generate_schedules.s(timezone.now().isoformat()) |
                   assign_employees.s() |
                   create_flights.s()
                   ).delay()
