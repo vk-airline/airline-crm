@@ -1,0 +1,99 @@
+* Notes
+** [2021-04-13 Tue 12:49] Распределение экипажа по полётам (наивный, экспоененицальный алгоритм)
+input: Flight[]
+output: (FlightId, Employee[])[]
+
+Псевдокод структур выше:
+#+begin_src python
+from dataclasses import dataclass
+from datetime import datetime
+
+
+@dataclass
+class Aircraft:
+    id: int
+    stewards_required: int # необходимое количество стюардесс
+    pilots_required: int   # -//- пилотов
+    ... # других сотрудников
+
+
+@dataclass
+class Flight:
+    id: int
+    aircraft: Aircraft
+    source: str
+    destination: str
+    departure_time: datetime
+    arrival_time: datetime
+
+
+@datatclass
+class EmployeeState:  # Класс, энкапсулирующий состояние конкретного сотрудника на одной итерации алгоритма
+    id: int
+    role: str  # роль сотрудника
+    location: str  # город, в котором он находится на момент итерации
+    time: datetime  # дата последнего изменения состояния
+#+end_src
+
+0) Сортируем массив input по departure_time
+1) Выгружаем из БД информацию о сотрудниках и инициализируем массив структур EmployeeState
+Информация о текущем городе и роли сотрудника берётся из БД, EmployeeState.time = now()
+#+begin_src python
+flights: list[Flight]
+employeeStates: list[EmployeeState]
+result: list[tuple[int, list[int]]] = []  # list(tuple(FlightId, list[EmployeeId]))
+for flight in flights:
+
+    def func(employee: EmployeeloyeeState) -> bool:
+        if employee.location == flight.source and employee.time < flight.time:
+            return True
+        # Сюда также можно добавить фильтрацию по степени загруженности
+        # сотрудника
+        return False
+
+    # список сотрудников, физически способных совершить перелёт
+    employeesAvailable: list[EmployeeState] = filter(func, employeeStates)
+
+    # Здесь берутся слайсы массива доступных сотрудников определённой роли
+    # Если в полученных массивах не хватает элементов, то распредиление сотрудников
+    # считается невозможным.
+    pilots = [e for e in employeesAvailable if e.role == PILOT][
+        : flight.aircraft.pilots_required
+    ]
+
+    stewards = [e for e in employeesAvailable if e.role == STEWARD][
+        : flight.aircraft.pilots_required
+    ]
+    crew = pilots + stewards
+
+    for employee in crew:
+        employee.location = (
+            flight.destination + N
+        )  # N -- время необходимое на пересадку
+        employee.time = flight.arrival_time + N  # N -- время необходимое на пересадку
+
+    result.append((flight.id, crew))
+#+end_src
+
+Хотя данный алгоритм квадратичный, он:
+1) Не оптимальный
+2) Не гарантирует, что если алгоритм закончился с ошибкой, что не существует какого-то распределения сотрудников по
+   переданным полётам.
+
+В итоге получается, что данный алгоритм даёт какое-то возможно распределение, да и то, если повезёт.
+
+Очевидно, что поставленная задача является задача удовлетворения ограничений и требует (1) строгой формализации
+и (2) алгоритмов определённой продвинутости.
+** [2021-04-13 Tue 12:44] Экспоненциальные алгоритмы
+
+Кажется, что все реализуемые алгоритмы будут (1) экспоненциальными и
+(2) субоптимальными.
+Одна только задача "Возможно ли распределить самолёты по всем перелётам (Flightам)?"  уже
+является очень сложной с вычислительной точки зрения, если реализовывать её наивным алгоритмом.
+** [2021-04-13 Tue 12:43] Дополнительные перелёты
+
+Мы увезли экипаж из города А в Б. Как нам вернуть экипаж обратно, если нет задания?
+** [2021-04-13 Tue 12:37] Flight planы и обратные рейсы
+
+Flight plan'ы в текущем виде не подразумевают обратные рейсы. Они определяются пунктом вылета и прилёта, а также
+днями недели, в которые они будут вылетать. Конкретные сутки, когда самолёт должен вернуться не определен, во всяком случае оператором.
