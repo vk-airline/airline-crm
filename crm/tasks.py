@@ -119,6 +119,7 @@ def generate_schedules(self, start_dt: str):
     start_dt = timezone.datetime.fromisoformat(start_dt)
     logger.info(f"Generating schedules from {start_dt.date()}")
     plans = FlightPlan.objects.filter(end_date__gte=start_dt.date())
+    plans.update(status=FlightPlan.PROCESSING_FPM)
     flights_info = list(chain.from_iterable(get_flights_datetimes(plan, starts_datetime=start_dt) for plan in plans))
     flights_info = sorted(flights_info, key=itemgetter(0))
     logger.info(f"Flights info: {flights_info}")
