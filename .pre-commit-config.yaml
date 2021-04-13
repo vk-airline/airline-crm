@@ -50,6 +50,7 @@ repos:
             Django,
             psycopg2-binary,
             django-timezone-field,
+            django-multiselectfield,
             celery,
         ]
   - repo: https://github.com/pre-commit/mirrors-mypy
@@ -64,5 +65,6 @@ repos:
             # runtime dependencies
             psycopg2-binary,
             django-timezone-field,
+            django-multiselectfield,
             celery,
         ]
