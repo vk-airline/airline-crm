@@ -9,7 +9,7 @@
         "actual_departure_datetime": null,
         "actual_arrival_datetime": null,
         "actual_destination": null,
-        "has_arrived": false,
+        "canceled": false,
         "aircraft": 1
     }
 },
@@ -23,7 +23,7 @@
         "actual_departure_datetime": null,
         "actual_arrival_datetime": null,
         "actual_destination": null,
-        "has_arrived": false,
+        "canceled": false,
         "aircraft": 1
     }
 },
@@ -37,7 +37,7 @@
         "actual_departure_datetime": null,
         "actual_arrival_datetime": null,
         "actual_destination": null,
-        "has_arrived": false,
+        "canceled": false,
         "aircraft": 1
     }
 },
@@ -51,7 +51,7 @@
         "actual_departure_datetime": null,
         "actual_arrival_datetime": null,
         "actual_destination": null,
-        "has_arrived": false,
+        "canceled": false,
         "aircraft": 1
     }
 },
@@ -65,7 +65,7 @@
         "actual_departure_datetime": null,
         "actual_arrival_datetime": null,
         "actual_destination": null,
-        "has_arrived": false,
+        "canceled": false,
         "aircraft": 1
     }
 },
@@ -79,7 +79,7 @@
         "actual_departure_datetime": null,
         "actual_arrival_datetime": null,
         "actual_destination": null,
-        "has_arrived": false,
+        "canceled": false,
         "aircraft": 1
     }
 },
@@ -93,7 +93,7 @@
         "actual_departure_datetime": null,
         "actual_arrival_datetime": null,
         "actual_destination": null,
-        "has_arrived": false,
+        "canceled": false,
         "aircraft": 1
     }
 },
@@ -107,7 +107,7 @@
         "actual_departure_datetime": null,
         "actual_arrival_datetime": null,
         "actual_destination": null,
-        "has_arrived": false,
+        "canceled": false,
         "aircraft": 1
     }
 },
@@ -121,7 +121,7 @@
         "actual_departure_datetime": null,
         "actual_arrival_datetime": null,
         "actual_destination": null,
-        "has_arrived": false,
+        "canceled": false,
         "aircraft": 1
     }
 }
