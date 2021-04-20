@@ -8,7 +8,8 @@ on:
 
 jobs:
   build:
-    environment: Testing
+    env:
+        SECRET_KEY: "not empty"
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
