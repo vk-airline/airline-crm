@@ -23,5 +23,5 @@ class EmployeeModelTest(TestCase):
 
         date2 = datetime.fromisoformat("2021-04-25T06:00:00+00:00")
         loc2 = empl.planned_location_at(date2)
-        self.assertEquals(loc2, Airport.objects.none())
+        self.assertFalse(loc2.exists())
 
