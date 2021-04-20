@@ -1,18 +1,82 @@
 [
-{
+  {
     "model": "crm.aircraft",
     "pk": 1,
     "fields": {
-        "tail_code": "H3-LI0",
-        "aircraft_model": "A319",
-        "mtow_weight_kg": 75500,
-        "max_payload_kg": 17700,
-        "range_of_flight_km": 6945,
-        "cargo_volume_m": 28,
-        "fuel_capacity_kg": 24085,
-        "takeoff_length_m": 1850,
-        "landing_length_m": 1250,
-        "speed_kmh": 821
+      "tail_code": "H3-LI0",
+      "aircraft_model": "A319",
+      "mtow_weight_kg": 75500,
+      "max_payload_kg": 17700,
+      "range_of_flight_km": 6945,
+      "cargo_volume_m": 28,
+      "fuel_capacity_kg": 24085,
+      "takeoff_length_m": 1850,
+      "landing_length_m": 1250,
+      "speed_kmh": 821
     }
-}
+  },
+  {
+    "model": "crm.aircraft",
+    "pk": 2,
+    "fields": {
+      "tail_code": "ABC-123",
+      "aircraft_model": "A380",
+      "mtow_weight_kg": 575000,
+      "max_payload_kg": 84000,
+      "range_of_flight_km": 14800,
+      "cargo_volume_m": 175,
+      "fuel_capacity_kg": 253983,
+      "takeoff_length_m": 3000,
+      "landing_length_m": 2900,
+      "speed_kmh": 903
+    }
+  },
+  {
+    "model": "crm.aircraft",
+    "pk": 3,
+    "fields": {
+      "tail_code": "EDF-456",
+      "aircraft_model": "Boeing 747-8I",
+      "mtow_weight_kg": 447000,
+      "max_payload_kg": 76100,
+      "range_of_flight_km": 14320,
+      "cargo_volume_m": 176,
+      "fuel_capacity_kg": 193000,
+      "takeoff_length_m": 2300,
+      "landing_length_m": 2300,
+      "speed_kmh": 821
+    }
+  },
+  {
+    "model": "crm.aircraft",
+    "pk": 4,
+    "fields": {
+      "tail_code": "GHI-789",
+      "aircraft_model": "Sukhoi Superjet 100",
+      "mtow_weight_kg": 45580,
+      "max_payload_kg": 12245,
+      "range_of_flight_km": 3048,
+      "cargo_volume_m": 22,
+      "fuel_capacity_kg": 12328,
+      "takeoff_length_m": 1731,
+      "landing_length_m": 2052,
+      "speed_kmh": 830
+    }
+  },
+  {
+    "model": "crm.aircraft",
+    "pk": 5,
+    "fields": {
+      "tail_code": "JKL-012",
+      "aircraft_model": "A319",
+      "mtow_weight_kg": 75500,
+      "max_payload_kg": 17700,
+      "range_of_flight_km": 6945,
+      "cargo_volume_m": 28,
+      "fuel_capacity_kg": 24085,
+      "takeoff_length_m": 1850,
+      "landing_length_m": 1250,
+      "speed_kmh": 821
+    }
+  }
 ]

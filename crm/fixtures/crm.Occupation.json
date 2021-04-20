@@ -1,18 +1,34 @@
 [
-{
+  {
     "model": "crm.occupation",
     "pk": 1,
     "fields": {
-        "name": "Pilot",
-        "description": "Pilots"
+      "name": "Pilot",
+      "description": "Pilots"
     }
-},
-{
+  },
+  {
     "model": "crm.occupation",
     "pk": 2,
     "fields": {
-        "name": "Steward",
-        "description": "Stewards"
+      "name": "Second Pilot",
+      "description": "Second Pilots"
     }
-}
+  },
+  {
+    "model": "crm.occupation",
+    "pk": 3,
+    "fields": {
+      "name": "Senior Flight Attendant",
+      "description": "Senior Flight Attendants"
+    }
+  },
+  {
+    "model": "crm.occupation",
+    "pk": 4,
+    "fields": {
+      "name": "Flight Attendant",
+      "description": "Flight Attendant"
+    }
+  }
 ]
