@@ -160,7 +160,7 @@ def generate_schedules(self, start_dt: str):
 class EmployeeState:  # Класс, энкапсулирующий состояние конкретного сотрудника на одной итерации алгоритма
     obj: Employee
     location: Airport
-    time: time  # дата последнего изменения состояния
+    time: datetime  # дата последнего изменения состояния
 
 
 @shared_task(bind=True)
@@ -186,7 +186,7 @@ def assign_employees(self, data):
             def predicate(employeeState):
                 return (employeeState.location == flight_plan.source
                         and
-                        employeeState.time < flight_plan.planning_departure_time)
+                        employeeState.time <= departure_time)
 
             available = list(filter(predicate, states))
             adi = aircraft.aircraftdynamicinfo
@@ -210,11 +210,11 @@ def assign_employees(self, data):
 
             for state in crew:
                 state.location = flight_plan.destination
-                state.time = flight_plan.planning_arrival_time
+                state.time = arrival_time
 
             variant.append(
                 (departure_time, arrival_time, aircraft_id,
-                 plan_id, [p.id for p in crew])
+                 plan_id, [p.obj.id for p in crew])
             )
         variants.append(variant)
 

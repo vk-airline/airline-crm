@@ -46,25 +46,26 @@ class AssignEmployeesTest(TestCase):
         schedule_variants = [
             # [(departure_time, arrival_time, aircraft.id, flightplan.id)],
             [
-                (datetime(2021, 4, 26, 0, 0, tzinfo=timezone.utc).time(),
-                 datetime(2021, 4, 26, 6, 0, tzinfo=timezone.utc).time(), 1, 1),
-                (datetime(2021, 4, 27, 0, 0, tzinfo=timezone.utc).time(),
-                 datetime(2021, 4, 27, 6, 0, tzinfo=timezone.utc).time(), 1, 2),
-                (datetime(2021, 4, 28, 0, 0, tzinfo=timezone.utc).time(),
-                 datetime(2021, 4, 28, 6, 0, tzinfo=timezone.utc).time(), 1, 1),
-                (datetime(2021, 4, 29, 0, 0, tzinfo=timezone.utc).time(),
-                 datetime(2021, 4, 29, 6, 0, tzinfo=timezone.utc).time(), 1, 2),
-                (datetime(2021, 4, 30, 0, 0, tzinfo=timezone.utc).time(),
-                 datetime(2021, 4, 30, 6, 0, tzinfo=timezone.utc).time(), 1, 1),
-                (datetime(2021, 5, 1, 0, 0, tzinfo=timezone.utc).time(),
-                 datetime(2021, 5, 1, 6, 0, tzinfo=timezone.utc).time(), 1, 2),
-                (datetime(2021, 5, 3, 0, 0, tzinfo=timezone.utc).time(),
-                 datetime(2021, 5, 3, 6, 0, tzinfo=timezone.utc).time(), 1, 1)
+                (datetime(2021, 4, 26, 0, 0, tzinfo=timezone.utc),
+                 datetime(2021, 4, 26, 6, 0, tzinfo=timezone.utc), 1, 1),
+                (datetime(2021, 4, 27, 0, 0, tzinfo=timezone.utc),
+                 datetime(2021, 4, 27, 6, 0, tzinfo=timezone.utc), 1, 2),
+                (datetime(2021, 4, 28, 0, 0, tzinfo=timezone.utc),
+                 datetime(2021, 4, 28, 6, 0, tzinfo=timezone.utc), 1, 1),
+                (datetime(2021, 4, 29, 0, 0, tzinfo=timezone.utc),
+                 datetime(2021, 4, 29, 6, 0, tzinfo=timezone.utc), 1, 2),
+                (datetime(2021, 4, 30, 0, 0, tzinfo=timezone.utc),
+                 datetime(2021, 4, 30, 6, 0, tzinfo=timezone.utc), 1, 1),
+                (datetime(2021, 5, 1, 0, 0, tzinfo=timezone.utc),
+                 datetime(2021, 5, 1, 6, 0, tzinfo=timezone.utc), 1, 2),
+                (datetime(2021, 5, 3, 0, 0, tzinfo=timezone.utc),
+                 datetime(2021, 5, 3, 6, 0, tzinfo=timezone.utc), 1, 1)
             ],
         ]
         start_date, schedule = assign_employees(
             (start_date, schedule_variants))
 
-        ans = [(*tup, [1, 2, 3]) for tup in schedule_variants[0]]
+        ans = [(*tup, [4, 5, 22, 23, 24, 25, 26, 27])
+               for tup in schedule_variants[0]]
         self.assertEquals(start_date, start_date)
         self.assertEquals(ans, schedule)
