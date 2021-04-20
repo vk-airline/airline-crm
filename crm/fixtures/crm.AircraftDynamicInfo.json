@@ -7,6 +7,8 @@
       "economy_class_cap": 102,
       "business_class_cap": 120,
       "first_class_cap": 24,
+      "pilots_number": 2,
+      "attendants_number": 6,
       "fuel_remaining_kg": 123
     }
   },
@@ -18,6 +20,8 @@
       "economy_class_cap": 456,
       "business_class_cap": 56,
       "first_class_cap": 8,
+      "pilots_number": 2,
+      "attendants_number": 6,
       "fuel_remaining_kg": 253983
     }
   },
@@ -29,6 +33,8 @@
       "economy_class_cap": 276,
       "business_class_cap": 80,
       "first_class_cap": 8,
+      "pilots_number": 2,
+      "attendants_number": 6,
       "fuel_remaining_kg": 193000
     }
   },
@@ -40,6 +46,8 @@
       "economy_class_cap": 75,
       "business_class_cap": 12,
       "first_class_cap": 0,
+      "pilots_number": 2,
+      "attendants_number": 4,
       "fuel_remaining_kg": 12328
     }
   },
@@ -51,6 +59,8 @@
       "economy_class_cap": 102,
       "business_class_cap": 120,
       "first_class_cap": 24,
+      "pilots_number": 2,
+      "attendants_number": 4,
       "fuel_remaining_kg": 123
     }
   }

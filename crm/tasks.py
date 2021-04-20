@@ -1,12 +1,13 @@
+import dataclasses
 from collections import defaultdict
-from datetime import datetime
+from datetime import datetime, time
 from itertools import chain
 from operator import itemgetter
 
 from celery import shared_task
 from django.db.models import Max, Q
 
-from .models import Flight, FlightPlan, Runway, Aircraft, Airport, AircraftDynamicInfo
+from .models import Flight, FlightPlan, Runway, Aircraft, Airport, AircraftDynamicInfo, Employee
 
 from django.utils import timezone
 from celery.utils.log import get_task_logger
@@ -155,29 +156,91 @@ def generate_schedules(self, start_dt: str):
     return start_dt, [schedule]
 
 
-@shared_task
-def assign_employees(data):
+@dataclasses.dataclass
+class EmployeeState:  # Класс, энкапсулирующий состояние конкретного сотрудника на одной итерации алгоритма
+    obj: Employee
+    location: Airport
+    time: time  # дата последнего изменения состояния
+
+
+@shared_task(bind=True)
+def assign_employees(self, data):
     start_dt, schedules = data
-    schedule = schedules[0]
-    logger.info(f"Schedule: {schedule}")
-    employees = []
-    return start_dt, schedule, employees
+    states: list[EmployeeState] = [
+        # if current location of an employee is unknown, we assume
+        # he is in LED
+        EmployeeState(emp, emp.planned_location_at(start_dt)
+                      or Airport.objects.get(id=1), start_dt)
+        for emp in Employee.objects.all().order_by('id')
+    ]
+
+    variants = []
+    for flights in schedules:
+        variant = []
+        for (departure_time, arrival_time, aircraft_id, plan_id) in flights:
+            aircraft = Aircraft.objects.get(id=aircraft_id)
+            flight_plan = FlightPlan.objects.get(id=plan_id)
+
+            # this can be a complex predicate that decides
+            # whether or not an employee is suitable for the flight
+            def predicate(employeeState):
+                return (employeeState.location == flight_plan.source
+                        and
+                        employeeState.time < flight_plan.planning_departure_time)
+
+            available = list(filter(predicate, states))
+            adi = aircraft.aircraftdynamicinfo
+
+            # IndexError implies failure to find
+            try:
+                # Occupation ID:
+                # pilot = 1
+                # second pilot = 2
+                pilots = [e for e in available if e.obj.occupation.id in [
+                    1, 2]][:adi.pilots_number]
+                # senior attendant = 3
+                # attendant = 4
+                attendants = [e for e in available if e.obj.occupation.id in [
+                    3, 4]][:adi.attendants_number]
+            except IndexError:
+                self.request.chain = None
+                return
+
+            crew = pilots + attendants
+
+            for state in crew:
+                state.location = flight_plan.destination
+                state.time = flight_plan.planning_arrival_time
+
+            variant.append(
+                (departure_time, arrival_time, aircraft_id,
+                 plan_id, [p.id for p in crew])
+            )
+        variants.append(variant)
+
+    # TODO: evaluate each one of the possible variants of crew
+    # configureations and choose the best one
+    def choose_best(variants):
+        return variants[0]
+
+    return start_dt, choose_best(variants)
 
 
 @shared_task
 def create_flights(data):
-    start_dt, schedule, employees = data
-    logger.info(f"Schedule: {schedule} Employees: {employees}")
+    start_dt, schedule = data
+    logger.info(f"Schedule: {schedule}")
     # TODO Make all queries in single transaction
     Flight.objects.filter(canceled=False, planning_departure_datetime__gte=start_dt).delete()
-    for departure, arrival, aircraft, plan_pk in schedule:
+    for departure, arrival, aircraft, plan_pk, crew in schedule:
         plan = FlightPlan.objects.get(pk=plan_pk)
         aircraft = Aircraft.objects.get(pk=aircraft)
         logger.info(f"Departure: {departure} Arrival: {arrival} Aircraft: {aircraft} Plan:  {plan}")
         flight = Flight.objects.create(planning_departure_datetime=departure,
                                        planning_arrival_datetime=arrival,
-                                       aircraft=aircraft,
-                                       flight_plan=plan)
+                                       aircraft_id=aircraft,
+                                       flight_plan_id=plan)
+        flight.employees.set(crew)
         flight.save()
         plan.status = FlightPlan.SUCCESS  # HAHA
         plan.save()
