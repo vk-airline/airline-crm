@@ -94,6 +94,17 @@ class Employee(models.Model):
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     occupation = models.ForeignKey(Occupation, on_delete=models.CASCADE)
 
+    def planned_location_at(self, date):
+        # Get the last known flight that flies out before date
+        flights = Flight.objects.filter(
+            canceled=False,
+            employees__in=[self],
+            planning_departure_datetime__lte=date).order_by('-planning_arrival_datetime')
+        if not flights:
+            return Airport.objects.none()
+        # if there are any get the planned destination
+        return flights[0].flight_plan.destination
+
     def __str__(self):
         if self.user.first_name and self.user.last_name:
             return  f"{self.user.first_name} {self.user.last_name}"
