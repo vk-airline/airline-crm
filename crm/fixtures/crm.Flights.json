@@ -1,128 +1,107 @@
 [
-{
+  {
     "model": "crm.flight",
-    "pk": 207,
+    "pk": 1,
     "fields": {
-        "flight_plan": 84,
-        "planning_departure_datetime": "2021-04-09T06:00:00Z",
-        "planning_arrival_datetime": "2021-04-09T00:00:00Z",
-        "actual_departure_datetime": null,
-        "actual_arrival_datetime": null,
-        "actual_destination": null,
-        "canceled": false,
-        "aircraft": 1
+      "flight_plan": 1,
+      "planning_departure_datetime": "2021-04-26T00:00:00Z",
+      "planning_arrival_datetime": "2021-04-26T06:00:00Z",
+      "actual_departure_datetime": null,
+      "actual_arrival_datetime": null,
+      "actual_destination": null,
+      "canceled": false,
+      "aircraft": 1,
+      "employees": [4, 8, 23, 24, 55, 56]
     }
-},
-{
+  },
+  {
     "model": "crm.flight",
-    "pk": 208,
+    "pk": 2,
     "fields": {
-        "flight_plan": 84,
-        "planning_departure_datetime": "2021-04-11T06:00:00Z",
-        "planning_arrival_datetime": "2021-04-11T00:00:00Z",
-        "actual_departure_datetime": null,
-        "actual_arrival_datetime": null,
-        "actual_destination": null,
-        "canceled": false,
-        "aircraft": 1
+      "flight_plan": 2,
+      "planning_departure_datetime": "2021-04-27T00:00:00Z",
+      "planning_arrival_datetime": "2021-04-27T06:00:00Z",
+      "actual_departure_datetime": null,
+      "actual_arrival_datetime": null,
+      "actual_destination": null,
+      "canceled": false,
+      "aircraft": 1,
+      "employees": [4, 8, 23, 24, 55, 56]
     }
-},
-{
+  },
+  {
     "model": "crm.flight",
-    "pk": 209,
+    "pk": 3,
     "fields": {
-        "flight_plan": 84,
-        "planning_departure_datetime": "2021-04-13T06:00:00Z",
-        "planning_arrival_datetime": "2021-04-13T00:00:00Z",
-        "actual_departure_datetime": null,
-        "actual_arrival_datetime": null,
-        "actual_destination": null,
-        "canceled": false,
-        "aircraft": 1
+      "flight_plan": 1,
+      "planning_departure_datetime": "2021-04-28T00:00:00Z",
+      "planning_arrival_datetime": "2021-04-28T06:00:00Z",
+      "actual_departure_datetime": null,
+      "actual_arrival_datetime": null,
+      "actual_destination": null,
+      "canceled": false,
+      "aircraft": 1,
+      "employees": [4, 8, 23, 24, 55, 56]
     }
-},
-{
+  },
+  {
     "model": "crm.flight",
-    "pk": 210,
+    "pk": 4,
     "fields": {
-        "flight_plan": 84,
-        "planning_departure_datetime": "2021-04-16T06:00:00Z",
-        "planning_arrival_datetime": "2021-04-16T00:00:00Z",
-        "actual_departure_datetime": null,
-        "actual_arrival_datetime": null,
-        "actual_destination": null,
-        "canceled": false,
-        "aircraft": 1
+      "flight_plan": 2,
+      "planning_departure_datetime": "2021-04-29T00:00:00Z",
+      "planning_arrival_datetime": "2021-04-29T06:00:00Z",
+      "actual_departure_datetime": null,
+      "actual_arrival_datetime": null,
+      "actual_destination": null,
+      "canceled": false,
+      "aircraft": 1,
+      "employees": [4, 8, 23, 24, 55, 56]
     }
-},
-{
+  },
+  {
     "model": "crm.flight",
-    "pk": 211,
+    "pk": 5,
     "fields": {
-        "flight_plan": 84,
-        "planning_departure_datetime": "2021-04-18T06:00:00Z",
-        "planning_arrival_datetime": "2021-04-18T00:00:00Z",
-        "actual_departure_datetime": null,
-        "actual_arrival_datetime": null,
-        "actual_destination": null,
-        "canceled": false,
-        "aircraft": 1
+      "flight_plan": 1,
+      "planning_departure_datetime": "2021-04-30T00:00:00Z",
+      "planning_arrival_datetime": "2021-04-30T06:00:00Z",
+      "actual_departure_datetime": null,
+      "actual_arrival_datetime": null,
+      "actual_destination": null,
+      "canceled": false,
+      "aircraft": 1,
+      "employees": [4, 8, 23, 24, 55, 56]
     }
-},
-{
+  },
+  {
     "model": "crm.flight",
-    "pk": 212,
+    "pk": 6,
     "fields": {
-        "flight_plan": 84,
-        "planning_departure_datetime": "2021-04-20T06:00:00Z",
-        "planning_arrival_datetime": "2021-04-20T00:00:00Z",
-        "actual_departure_datetime": null,
-        "actual_arrival_datetime": null,
-        "actual_destination": null,
-        "canceled": false,
-        "aircraft": 1
+      "flight_plan": 2,
+      "planning_departure_datetime": "2021-05-01T00:00:00Z",
+      "planning_arrival_datetime": "2021-05-01T06:00:00Z",
+      "actual_departure_datetime": null,
+      "actual_arrival_datetime": null,
+      "actual_destination": null,
+      "canceled": false,
+      "aircraft": 1,
+      "employees": [4, 8, 23, 24, 55, 56]
     }
-},
-{
+  },
+  {
     "model": "crm.flight",
-    "pk": 213,
+    "pk": 7,
     "fields": {
-        "flight_plan": 84,
-        "planning_departure_datetime": "2021-04-23T06:00:00Z",
-        "planning_arrival_datetime": "2021-04-23T00:00:00Z",
-        "actual_departure_datetime": null,
-        "actual_arrival_datetime": null,
-        "actual_destination": null,
-        "canceled": false,
-        "aircraft": 1
+      "flight_plan": 1,
+      "planning_departure_datetime": "2021-05-03T00:00:00Z",
+      "planning_arrival_datetime": "2021-05-03T06:00:00Z",
+      "actual_departure_datetime": null,
+      "actual_arrival_datetime": null,
+      "actual_destination": null,
+      "canceled": false,
+      "aircraft": 1,
+      "employees": [4, 8, 23, 24, 55, 56]
     }
-},
-{
-    "model": "crm.flight",
-    "pk": 214,
-    "fields": {
-        "flight_plan": 84,
-        "planning_departure_datetime": "2021-04-25T06:00:00Z",
-        "planning_arrival_datetime": "2021-04-25T00:00:00Z",
-        "actual_departure_datetime": null,
-        "actual_arrival_datetime": null,
-        "actual_destination": null,
-        "canceled": false,
-        "aircraft": 1
-    }
-},
-{
-    "model": "crm.flight",
-    "pk": 215,
-    "fields": {
-        "flight_plan": 84,
-        "planning_departure_datetime": "2021-04-27T06:00:00Z",
-        "planning_arrival_datetime": "2021-04-27T00:00:00Z",
-        "actual_departure_datetime": null,
-        "actual_arrival_datetime": null,
-        "actual_destination": null,
-        "canceled": false,
-        "aircraft": 1
-    }
-}
+  }
 ]
