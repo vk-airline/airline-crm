@@ -10,3 +10,5 @@ services:
   celery_worker:
     environment:
       - SECRET_KEY="not empty"
+    volumes:
+      - .:/usr/src/app
