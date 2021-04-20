@@ -1,19 +1,36 @@
 [
-{
+  {
     "model": "crm.flightplan",
-    "pk": 84,
+    "pk": 1,
     "fields": {
-        "planning_departure_time": "00:00:00",
-        "planning_arrival_time": "06:00:00",
-        "source": 1,
-        "destination": 2,
-        "flight_code": "ABC-1337",
-        "passanger_capacity": 600,
-        "days_of_week": "1,4,6",
-        "start_date": "2021-04-08",
-        "end_date": "2021-04-28",
-        "status": 6,
-        "description": "No available runways. Source runways: 1, Destination runways: 0"
+      "planning_departure_time": "00:00:00",
+      "planning_arrival_time": "06:00:00",
+      "source": 1,
+      "destination": 2,
+      "flight_code": "LED-SVO",
+      "passanger_capacity": 200,
+      "days_of_week": "1,4,6",
+      "start_date": "2021-04-26",
+      "end_date": "2021-05-03",
+      "status": 1,
+      "description": ""
     }
-}
+  },
+  {
+    "model": "crm.flightplan",
+    "pk": 2,
+    "fields": {
+      "planning_departure_time": "00:00:00",
+      "planning_arrival_time": "06:00:00",
+      "source": 2,
+      "destination": 1,
+      "flight_code": "SVO-LED",
+      "passanger_capacity": 200,
+      "days_of_week": "1,4,6",
+      "start_date": "2021-04-27",
+      "end_date": "2021-05-01",
+      "status": 1,
+      "description": ""
+    }
+  }
 ]
