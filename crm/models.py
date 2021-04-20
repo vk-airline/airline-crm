@@ -135,10 +135,12 @@ class Aircraft(models.Model):
 
 
 class AircraftDynamicInfo(models.Model):
-    aircraft = models.ForeignKey(Aircraft, on_delete=models.CASCADE)
+    aircraft = models.OneToOneField(Aircraft, on_delete=models.CASCADE)
     economy_class_cap = models.PositiveSmallIntegerField()
     business_class_cap = models.PositiveSmallIntegerField()
     first_class_cap = models.PositiveSmallIntegerField()
+    pilots_number = models.PositiveSmallIntegerField(default=1)
+    attendants_number = models.PositiveSmallIntegerField(default=0)
     fuel_remaining_kg = models.PositiveIntegerField()
 
 
