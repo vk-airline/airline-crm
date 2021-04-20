@@ -164,6 +164,7 @@ class Flight(models.Model):
     actual_destination = models.ForeignKey(Airport, blank=True, null=True, on_delete=models.CASCADE)
     canceled = models.BooleanField(default=False)
     aircraft = models.ForeignKey(Aircraft, on_delete=models.CASCADE)
+    employees = models.ManyToManyField(Employee)
 
     def get_absolute_url(self):
         return reverse("crm:edit flight", kwargs={'pk': self.pk})
