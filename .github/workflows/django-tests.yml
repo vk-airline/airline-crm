@@ -12,7 +12,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Build the Docker image
-      run: docker-compose --env-file ./.env.dev build app
+    - uses: actions/setup-python@v2
+      with:
+        python-version: 3.9
+    - name: Installing dependencies
+      run: pip install -r ./requirements.txt
     - name: Run tests
-      run: docker-compose --env-file ./.env.dev run --no-deps app python manage.py test
+      run: python ./manage.py test
