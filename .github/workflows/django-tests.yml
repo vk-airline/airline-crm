@@ -6,6 +6,7 @@ on:
 
 env:
     SECRET_KEY: "not empty"
+    DATABASE_HOST: "localhost"
     DATABASE_USER: "postgres"
     DATABASE_PASS: "postgres"
     DATABASE_DB: "postgres"
