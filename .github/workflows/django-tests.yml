@@ -2,9 +2,7 @@ name: Django tests
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    branches: [ workflow-experiments ]
 
 env:
     SECRET_KEY: "not empty"
@@ -35,6 +33,10 @@ jobs:
       run: sudo apt-get install libpq-dev
     - name: Installing dependencies
       run: pip install -r ./requirements.txt
+    - name: python version
+      run: python --version
+    - name: python3 version
+      run: python3 --version
     - name: Run migrations
       run: python ./manage.py migrate
     - name: Run tests
