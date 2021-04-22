@@ -46,7 +46,6 @@ services:
       - "${WEB_SERVER_PORT}:8000"
     depends_on:
       - db
-      - rmq
   celery_worker:
     image: app-image
     command: sh -c "./wait-for db:${DATABASE_PORT}
