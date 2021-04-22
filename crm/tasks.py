@@ -1,13 +1,14 @@
 import dataclasses
 from collections import defaultdict
-from datetime import datetime, time
+from datetime import datetime
 from itertools import chain
 from operator import itemgetter
+from random import choice
 
 from celery import shared_task
 from django.db.models import Max, Q
 
-from .models import Flight, FlightPlan, Runway, Aircraft, Airport, AircraftDynamicInfo, Employee
+from .models import Flight, FlightPlan, Runway, Aircraft, Airport, AircraftDynamicInfo, Employee, SchedulersConfig
 
 from django.utils import timezone
 from celery.utils.log import get_task_logger
@@ -55,20 +56,29 @@ class ScheduleError(Exception):
     pass
 
 
-def get_actually_available_aircraft(airport: Airport):
+def check_flights_compatibility():
+    pass
+
+
+def get_actually_available_aircraft(airport: Airport, service_duration_s=0):
     aircraft_flight = Flight.objects.filter(canceled=False, actual_destination=airport,
-                                            actual_arrival_datetime__lte=timezone.now()).values(
+                                            actual_arrival_datetime__lte=timezone.now() - timezone.timedelta(
+                                                seconds=service_duration_s)).values(
         'aircraft').annotate(last_arrival=Max('actual_arrival_datetime'))
     logger.info(f"Flights: {aircraft_flight}")
     # TODO: optimise there:
     valid = filter(lambda flight: Flight.objects.filter(flight_plan__source=airport,
+                                                        aircraft=flight['aircraft'],
                                                         actual_departure_datetime__gte=flight[
                                                             'last_arrival']).count() == 0,
                    aircraft_flight)
+    # logger.info("ABC" + str(Flight.objects.filter(flight_plan__source=airport,
+    #                                               actual_departure_datetime__gte=aircraft_flight[0][
+    #                                                   'last_arrival']).get()))
     return map(lambda availability_info: availability_info['aircraft'], valid)
 
 
-def get_planned_available_aircraft(airport: Airport, datetime_point: datetime):
+def get_planned_available_aircraft(airport: Airport, datetime_point: datetime, service_duration_s=0):
     # TODO: make it smarter, this implementation guarantee that result is correct
     # current algo:
     # get all available aircraft now
@@ -79,11 +89,11 @@ def get_planned_available_aircraft(airport: Airport, datetime_point: datetime):
     #  get list of all aircraft
     #  look when every aircraft last arrived ('planned_arrived_datetime' field)
     #  check that aircraft not departure from airport in range [arrived, planned_arrived_datetime]
-
     all_aircraft = {aircraft for aircraft in get_actually_available_aircraft(airport)}
     logger.info(f"Now in airport {airport}: {all_aircraft}")
+    with_service_datetime = datetime_point - timezone.timedelta(seconds=service_duration_s)
     flights = Flight.objects.filter(
-        Q(flight_plan__destination=airport, planning_arrival_datetime__lt=datetime_point) |
+        Q(flight_plan__destination=airport, planning_arrival_datetime__lt=with_service_datetime) |
         Q(flight_plan__source=airport, planning_departure_datetime__lt=datetime_point),
         canceled=False).order_by('planning_arrival_datetime')
     for flight in flights:
@@ -107,30 +117,22 @@ def get_planned_available_aircraft(airport: Airport, datetime_point: datetime):
 
 
 def aircraft_smart_chooser(departure: datetime, arrival: datetime, plan: FlightPlan, aircraft_list: set):
+    candidates = []
     for aircraft in aircraft_list:
         craft_info = AircraftDynamicInfo.objects.get(aircraft=aircraft)
+        # CHECK THAT ENOUGH FUEL
+        # CHECK THAT MAINTENANCE IS NOT REQUIRED
         capacity = craft_info.business_class_cap + craft_info.first_class_cap + craft_info.economy_class_cap
         if capacity >= plan.passanger_capacity:
-            return aircraft
-    return None
+            candidates.append(aircraft)
+    return choice(candidates) if candidates else None
 
 
-@shared_task(bind=True)
-def generate_schedules(self, start_dt: str):
-    start_dt = timezone.datetime.fromisoformat(start_dt)
-    logger.info(f"Generating schedules from {start_dt.date()}")
-    plans = FlightPlan.objects.filter(end_date__gte=start_dt.date())
-    plans.update(status=FlightPlan.PROCESSING_FPM)
-    flights_info = list(chain.from_iterable(get_flights_datetimes(plan, starts_datetime=start_dt) for plan in plans))
-    flights_info = sorted(flights_info, key=itemgetter(0))
-    logger.info(f"Flights info: {flights_info}")
-    banned_flights = Flight.objects.filter(canceled=True, planning_departure_datetime__gte=start_dt)
-    banned_flights = set(map(lambda f: (f.planning_departure_datetime, f.planning_arrival_datetime, f.flight_plan.pk),
-                             banned_flights))
-    logger.info(f"Banned flights: {banned_flights}")
-    schedule = []
+def generate_single_schedule(flights_info, banned_flights):
+    config = SchedulersConfig.objects.all().first()
+    schedule, in_flight = [], []
     available_aircraft = defaultdict(set)
-    in_flight = []
+    srv_dur_s = 60 * config.min_flight_delay_minutes
     for departure, arrival, plan_pk in flights_info:
         while in_flight and in_flight[0][0] <= departure:
             dep, destination, craft = in_flight.pop(0)
@@ -139,21 +141,61 @@ def generate_schedules(self, start_dt: str):
         if (departure, arrival, plan_pk) not in banned_flights:
             plan = FlightPlan.objects.get(pk=plan_pk)
             if plan.source not in available_aircraft:
-                available_aircraft[plan.source] = get_planned_available_aircraft(plan.source, departure)
+                available_aircraft[plan.source] = get_planned_available_aircraft(plan.source, departure, srv_dur_s)
             aircraft = aircraft_smart_chooser(departure, arrival, plan, available_aircraft[plan.source])
             if aircraft is None:
-                logger.info(f"Available: {available_aircraft}")
-                plan.description = f"Cannot create flight by plan {plan} with departure: {departure}. There is no " \
-                                   f"available aircraft. All aircraft list: {available_aircraft[plan.source]}"
-                plan.status = FlightPlan.ERROR_FPM
-                plan.save()
-                self.request.chain = None
-                return  # DO NOT REMOVE THIS THERE IS NO ELSE CASE
+                return None, [plan.pk,
+                              f"Cannot create flight by plan {plan.pk} with departure: {departure}. There is no "
+                              f"available aircraft. All aircraft list: {available_aircraft[plan.source]}"]
             available_aircraft[plan.source].remove(aircraft)
             logger.info(f"Aircraft: {aircraft} departure from {plan.source}")
-            in_flight.append((arrival, plan.destination, aircraft))
+            in_flight.append(
+                (arrival + timezone.timedelta(minutes=config.min_flight_delay_minutes), plan.destination, aircraft))
             schedule.append((departure, arrival, aircraft, plan.pk))
-    return start_dt, [schedule]
+    return schedule, None
+
+
+@shared_task(bind=True)
+def generate_schedules(self, start_dt: str):
+    start_dt = timezone.datetime.fromisoformat(start_dt)
+    plans = FlightPlan.objects.filter(end_date__gte=start_dt.date())
+    plans.update(status=FlightPlan.PROCESSING_FPM)
+    try:
+        config = SchedulersConfig.objects.all().first()
+    except:
+        plans.update(status=FlightPlan.ERROR_FPM)
+        plans.update(description="Please create a config for the schedulers in the admin panel.")
+        self.request.chain = None
+        return
+    logger.info(f"Generating schedules from {start_dt.date()}")
+    flights_info = list(chain.from_iterable(get_flights_datetimes(plan, starts_datetime=start_dt) for plan in plans))
+    flights_info = sorted(flights_info, key=itemgetter(0))
+    logger.info(f"Flights info: {flights_info}")
+    banned_flights = Flight.objects.filter(canceled=True, planning_departure_datetime__gte=start_dt)
+    banned_flights = list(map(lambda f: (f.planning_departure_datetime, f.planning_arrival_datetime, f.flight_plan.pk),
+                              banned_flights))
+    logger.info(f"Banned flights: {banned_flights}")
+
+    schedules = []
+    plan_pk, error_text = None, None
+    for attempt in range(config.max_flight_generation_attempts):  # TODO: make it parallel
+        schedule, error = generate_single_schedule(flights_info, banned_flights)
+        if error is None:
+            logger.info(f"Attempt #{attempt + 1} was successful.")
+            schedules.append(schedule)
+        else:
+            plan_pk, error_text = error
+            logger.info(f"Attempt #{attempt + 1} was not successful.")
+
+    if plan_pk is not None and not schedules:
+        plan = FlightPlan.objects.get(pk=plan_pk)
+        plan.status = FlightPlan.ERROR_FPM
+        plan.description = error_text
+        plan.save()
+        self.request.chain = None
+        return
+    plans.update(status=FlightPlan.PROCESSING_EPM)
+    return start_dt, schedules
 
 
 @dataclasses.dataclass
@@ -165,6 +207,7 @@ class EmployeeState:  # Класс, энкапсулирующий состоя�
 
 @shared_task(bind=True)
 def assign_employees(self, data):
+    # TODO: update states of plans: PROCESSING_EPM/ERROR_EPM
     start_dt, schedules = data
     states: list[EmployeeState] = [
         # if current location of an employee is unknown, we assume
@@ -193,7 +236,7 @@ def assign_employees(self, data):
 
             # IndexError implies failure to find
             try:
-                # Occupation ID:
+                # Occupation ID:    # TODO: enums better than comments
                 # pilot = 1
                 # second pilot = 2
                 pilots = [e for e in available if e.obj.occupation.id in [
@@ -232,14 +275,13 @@ def create_flights(data):
     logger.info(f"Schedule: {schedule}")
     # TODO Make all queries in single transaction
     Flight.objects.filter(canceled=False, planning_departure_datetime__gte=start_dt).delete()
-    for departure, arrival, aircraft, plan_pk, crew in schedule:
+    for departure, arrival, aircraft_pk, plan_pk, crew in schedule:
         plan = FlightPlan.objects.get(pk=plan_pk)
-        aircraft = Aircraft.objects.get(pk=aircraft)
-        logger.info(f"Departure: {departure} Arrival: {arrival} Aircraft: {aircraft} Plan:  {plan}")
+        logger.info(f"Departure: {departure} Arrival: {arrival} Aircraft: {aircraft_pk} Plan:  {plan}")
         flight = Flight.objects.create(planning_departure_datetime=departure,
                                        planning_arrival_datetime=arrival,
-                                       aircraft_id=aircraft,
-                                       flight_plan_id=plan)
+                                       aircraft_id=aircraft_pk,
+                                       flight_plan=plan)
         flight.employees.set(crew)
         flight.save()
         plan.status = FlightPlan.SUCCESS  # HAHA

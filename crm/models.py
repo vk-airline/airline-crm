@@ -5,6 +5,12 @@ from timezone_field import TimeZoneField
 from multiselectfield import MultiSelectField
 
 
+class SchedulersConfig(models.Model):
+    min_flight_delay_minutes = models.PositiveSmallIntegerField()
+    max_flight_generation_attempts = models.PositiveSmallIntegerField()
+    flight_generation_timeout_s = models.PositiveSmallIntegerField()
+
+
 class Airport(models.Model):
     iata = models.CharField(max_length=3, unique=True)
     icao = models.CharField(max_length=4, unique=True)

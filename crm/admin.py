@@ -12,6 +12,7 @@ from .models import (
     AircraftDynamicInfo,
     AircraftDeviceLife,
     AircraftLog,
+    SchedulersConfig
 )
 
 admin.site.register(
@@ -27,6 +28,7 @@ admin.site.register(
         AircraftDynamicInfo,
         AircraftDeviceLife,
         AircraftLog,
+        SchedulersConfig
     )
 )
 
