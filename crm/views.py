@@ -6,7 +6,7 @@ from django.utils import timezone
 from django.views.generic import ListView, DetailView, FormView, DeleteView
 
 from .forms import FlightForm, FlightPlanForm
-from .models import Employee, EmployeeLog, Aircraft, AircraftDeviceLife, AircraftLog, Flight, FlightPlan
+from .models import Employee, EmployeeLog, Aircraft, AircraftDeviceLife, AircraftLog, Flight, FlightPlan, ScheduleConfig
 from .tasks import check_airports_availability, generate_schedules, assign_employees, create_flights
 from django.http import HttpResponse, HttpResponseRedirect
 
@@ -59,9 +59,10 @@ class FlightsView(PermissionRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        config = ScheduleConfig.objects.all().first()
         context['flights'] = Flight.objects.filter(
-            planning_departure_datetime__gte=timezone.now() - timezone.timedelta(days=7),
-            planning_departure_datetime__lte=timezone.now() + timezone.timedelta(days=31)
+            planning_departure_datetime__gte=timezone.now() - timezone.timedelta(hours=config.show_past_flights_hours),
+            planning_departure_datetime__lte=timezone.now() + timezone.timedelta(hours=config.show_future_flights_hours),
         ).order_by('planning_departure_datetime')
         return context
 

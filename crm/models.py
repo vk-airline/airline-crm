@@ -5,8 +5,13 @@ from timezone_field import TimeZoneField
 from multiselectfield import MultiSelectField
 
 
-class SchedulersConfig(models.Model):
-    min_flight_delay_minutes = models.PositiveSmallIntegerField()
+class ScheduleConfig(models.Model):
+    show_past_flights_hours = models.PositiveSmallIntegerField()
+    show_future_flights_hours = models.PositiveSmallIntegerField()
+    warning_schedule_delay_minutes = models.PositiveSmallIntegerField()
+    warning_arrival_delay_minutes = models.PositiveSmallIntegerField()
+    warning_arrival_shifted_minutes = models.PositiveSmallIntegerField()
+    min_between_flights_delay_minutes = models.PositiveSmallIntegerField()
     max_flight_generation_attempts = models.PositiveSmallIntegerField()
     flight_generation_timeout_s = models.PositiveSmallIntegerField()
 

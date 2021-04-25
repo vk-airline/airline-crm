@@ -1,6 +1,7 @@
 import dataclasses
 from collections import defaultdict
 from datetime import datetime
+from enum import Enum, unique
 from itertools import chain
 from operator import itemgetter
 from random import choice
@@ -8,7 +9,7 @@ from random import choice
 from celery import shared_task
 from django.db.models import Max, Q
 
-from .models import Flight, FlightPlan, Runway, Aircraft, Airport, AircraftDynamicInfo, Employee, SchedulersConfig
+from .models import Flight, FlightPlan, Runway, Aircraft, Airport, AircraftDynamicInfo, Employee, ScheduleConfig
 
 from django.utils import timezone
 from celery.utils.log import get_task_logger
@@ -56,8 +57,68 @@ class ScheduleError(Exception):
     pass
 
 
-def check_flights_compatibility():
-    pass
+@unique
+class FlightWarning(Enum):
+    NONE = 0
+    CANCELED = 1
+    FLIGHT_RULES_VIOLATION = 3
+    DEPARTURE_DELAY = 4
+    ARRIVAL_DELAY = 5
+    ARRIVAL_SHIFTED = 6
+    PREVIOUS_ARRIVED_TO_LATE = 7
+    PREVIOUS_CAN_ARRIVE_TO_LATE = 8
+    PREVIOUS_NOT_DEPARTURE_TOO_LONG = 9
+    AIRCRAFT_FLEW_IN_ANOTHER_AIRPORT = 10
+
+
+def check_flights_compatibility(flight_query_set):
+    flight_status = {}
+    config = ScheduleConfig.objects.all().first()
+
+    for flight in flight_query_set.order_by('planning_departure_datetime'):
+        prev_flight = Flight.objects.filter(Q(planning_departure_datetime__lt=flight.planning_arrival_datetime) |
+                                            Q(planning_arrival_datetime__lt=flight.planning_departure_datetime),
+                                            aircraft=flight.aircraft).order_by('-planning_arrival_datetime',
+                                                                               canceled=False).first()
+        prev_approx_duration = prev_flight.planning_arrival_datetime - prev_flight.planning_departure_datetime
+        prev_departure = max(timezone.now(), prev_flight.planning_departure_datetime)
+        if prev_flight.actual_departure_datetime is not None:
+            prev_departure = prev_flight.actual_departure_datetime
+        prev_approx_arrival = prev_approx_duration + prev_departure
+        aircraft_required_dt = flight.planning_departure_datetime - config.min_between_flights_delay_minutes
+        if flight.canceled:
+            flight_status[flight.pk] = FlightWarning.CANCELED
+        elif prev_flight.flight_plan.destination != flight.flight_plan.source:
+            flight_status[flight.pk] = FlightWarning.AIRCRAFT_FLEW_IN_ANOTHER_AIRPORT
+        elif prev_flight.actual_departure_datetime is None:
+            if prev_approx_arrival > aircraft_required_dt:
+                flight_status[flight.pk] = FlightWarning.PREVIOUS_NOT_DEPARTURE_TOO_LONG
+        else:
+            if prev_flight.actual_arrival_datetime is None:
+                if prev_approx_arrival >= aircraft_required_dt:
+                    flight_status[flight.pk] = FlightWarning.PREVIOUS_CAN_ARRIVE_TO_LATE
+            elif prev_flight.actual_arrival_datetime > aircraft_required_dt:
+                flight_status[flight.pk] = FlightWarning.PREVIOUS_ARRIVED_TO_LATE
+
+        if flight.pk not in flight_status:
+            flight_duration = flight.planning_arrival_datetime - flight.planning_departure_datetime
+            if flight.actual_departure_datetime is None:
+                if flight.planning_departure_datetime + config.warning_schedule_delay_minutes >= timezone.now():
+                    flight_status[flight.pk] = FlightWarning.DEPARTURE_DELAY
+                else:
+                    flight_status[flight.pk] = FlightWarning.NONE
+            else:
+                if flight.actual_arrival_datetime is None:
+                    flight_approx_arrival = flight.actual_departure_datetime + flight_duration
+                    if flight_approx_arrival > timezone.now() + config.warning_arrival_delay_minutes:
+                        flight_status[flight.pk] = FlightWarning.ARRIVAL_DELAY
+                else:
+                    arrival_shifting = flight.actual_arrival_datetime - flight.planning_arrival_datetime
+                    if arrival_shifting > config.warning_arrival_shifted_minutes:
+                        flight_status[flight.pk] = FlightWarning.ARRIVAL_SHIFTED
+        elif flight.actual_arrival_datetime is not None or flight.actual_departure_datetime is None:
+            flight_status[flight.pk] = FlightWarning.FLIGHT_RULES_VIOLATION
+    return flight_status
 
 
 def get_actually_available_aircraft(airport: Airport, service_duration_s=0):
@@ -129,10 +190,10 @@ def aircraft_smart_chooser(departure: datetime, arrival: datetime, plan: FlightP
 
 
 def generate_single_schedule(flights_info, banned_flights):
-    config = SchedulersConfig.objects.all().first()
+    config = ScheduleConfig.objects.all().first()
     schedule, in_flight = [], []
     available_aircraft = defaultdict(set)
-    srv_dur_s = 60 * config.min_flight_delay_minutes
+    srv_dur_s = 60 * config.min_between_flights_delay_minutes
     for departure, arrival, plan_pk in flights_info:
         while in_flight and in_flight[0][0] <= departure:
             dep, destination, craft = in_flight.pop(0)
@@ -150,7 +211,8 @@ def generate_single_schedule(flights_info, banned_flights):
             available_aircraft[plan.source].remove(aircraft)
             logger.info(f"Aircraft: {aircraft} departure from {plan.source}")
             in_flight.append(
-                (arrival + timezone.timedelta(minutes=config.min_flight_delay_minutes), plan.destination, aircraft))
+                (arrival + timezone.timedelta(minutes=config.min_between_flights_delay_minutes), plan.destination,
+                 aircraft))
             schedule.append((departure, arrival, aircraft, plan.pk))
     return schedule, None
 
@@ -161,7 +223,7 @@ def generate_schedules(self, start_dt: str):
     plans = FlightPlan.objects.filter(end_date__gte=start_dt.date())
     plans.update(status=FlightPlan.PROCESSING_FPM)
     try:
-        config = SchedulersConfig.objects.all().first()
+        config = ScheduleConfig.objects.all().first()
     except:
         plans.update(status=FlightPlan.ERROR_FPM)
         plans.update(description="Please create a config for the schedulers in the admin panel.")
