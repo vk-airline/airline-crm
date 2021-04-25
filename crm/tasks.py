@@ -59,8 +59,9 @@ class ScheduleError(Exception):
 
 @unique
 class FlightWarning(Enum):
-    NONE = 0
+    OK = 0
     CANCELED = 1
+    CHAIN_PROBLEM = 2
     FLIGHT_RULES_VIOLATION = 3
     DEPARTURE_DELAY = 4
     ARRIVAL_DELAY = 5
@@ -68,7 +69,8 @@ class FlightWarning(Enum):
     PREVIOUS_ARRIVED_TO_LATE = 7
     PREVIOUS_CAN_ARRIVE_TO_LATE = 8
     PREVIOUS_NOT_DEPARTURE_TOO_LONG = 9
-    AIRCRAFT_FLEW_IN_ANOTHER_AIRPORT = 10
+    AIRCRAFT_WILL_BE_IN_ANOTHER_AIRPORT = 10
+    AIRCRAFT_IN_ANOTHER_AIRPORT = 11
 
 
 def check_flights_compatibility(flight_query_set):
@@ -76,10 +78,18 @@ def check_flights_compatibility(flight_query_set):
     config = ScheduleConfig.objects.all().first()
 
     for flight in flight_query_set.order_by('planning_departure_datetime'):
-        prev_flight = Flight.objects.filter(Q(planning_departure_datetime__lt=flight.planning_arrival_datetime) |
-                                            Q(planning_arrival_datetime__lt=flight.planning_departure_datetime),
-                                            aircraft=flight.aircraft).order_by('-planning_arrival_datetime',
-                                                                               canceled=False).first()
+        prev_flights = Flight.objects.filter(planning_departure_datetime__lt=flight.planning_departure_datetime,
+                                             aircraft=flight.aircraft, canceled=False).order_by(
+            '-planning_arrival_datetime')
+        prev_flight = prev_flights.first()
+        if flight.flight_plan.source == flight.flight_plan.destination:
+            flight_status[flight.pk] = FlightWarning.OK
+            continue  # Init flight
+        elif prev_flight is None:
+            logger.warning(f"ERROR: There is no prev_flight for: {flight}")
+            flight_status[flight.pk] = FlightWarning.FLIGHT_RULES_VIOLATION
+            continue
+        logger.info(f"Prev flight {prev_flight} for flight {flight}")
         prev_approx_duration = prev_flight.planning_arrival_datetime - prev_flight.planning_departure_datetime
         prev_departure = max(timezone.now(), prev_flight.planning_departure_datetime)
         if prev_flight.actual_departure_datetime is not None:
@@ -89,7 +99,7 @@ def check_flights_compatibility(flight_query_set):
         if flight.canceled:
             flight_status[flight.pk] = FlightWarning.CANCELED
         elif prev_flight.flight_plan.destination != flight.flight_plan.source:
-            flight_status[flight.pk] = FlightWarning.AIRCRAFT_FLEW_IN_ANOTHER_AIRPORT
+            flight_status[flight.pk] = FlightWarning.AIRCRAFT_WILL_BE_IN_ANOTHER_AIRPORT
         elif prev_flight.actual_departure_datetime is None:
             if prev_approx_arrival > aircraft_required_dt:
                 flight_status[flight.pk] = FlightWarning.PREVIOUS_NOT_DEPARTURE_TOO_LONG
@@ -97,27 +107,45 @@ def check_flights_compatibility(flight_query_set):
             if prev_flight.actual_arrival_datetime is None:
                 if prev_approx_arrival >= aircraft_required_dt:
                     flight_status[flight.pk] = FlightWarning.PREVIOUS_CAN_ARRIVE_TO_LATE
+            elif prev_flight.actual_destination != flight.flight_plan.source:
+                flight_status[flight.pk] = FlightWarning.AIRCRAFT_IN_ANOTHER_AIRPORT
             elif prev_flight.actual_arrival_datetime > aircraft_required_dt:
                 flight_status[flight.pk] = FlightWarning.PREVIOUS_ARRIVED_TO_LATE
 
         if flight.pk not in flight_status:
             flight_duration = flight.planning_arrival_datetime - flight.planning_departure_datetime
             if flight.actual_departure_datetime is None:
-                if flight.planning_departure_datetime + config.warning_schedule_delay_minutes >= timezone.now():
+                if flight.planning_departure_datetime + config.warning_schedule_delay_time <= timezone.now():
                     flight_status[flight.pk] = FlightWarning.DEPARTURE_DELAY
                 else:
-                    flight_status[flight.pk] = FlightWarning.NONE
+                    flight_status[flight.pk] = FlightWarning.OK
             else:
                 if flight.actual_arrival_datetime is None:
                     flight_approx_arrival = flight.actual_departure_datetime + flight_duration
-                    if flight_approx_arrival > timezone.now() + config.warning_arrival_delay_minutes:
+                    if flight_approx_arrival + config.warning_arrival_delay_time <= timezone.now():
                         flight_status[flight.pk] = FlightWarning.ARRIVAL_DELAY
+                    else:
+                        flight_status[flight.pk] = FlightWarning.OK
                 else:
                     arrival_shifting = flight.actual_arrival_datetime - flight.planning_arrival_datetime
-                    if arrival_shifting > config.warning_arrival_shifted_minutes:
+                    if arrival_shifting > config.warning_arrival_shifted_time:
                         flight_status[flight.pk] = FlightWarning.ARRIVAL_SHIFTED
-        elif flight.actual_arrival_datetime is not None or flight.actual_departure_datetime is None:
-            flight_status[flight.pk] = FlightWarning.FLIGHT_RULES_VIOLATION
+                    else:
+                        flight_status[flight.pk] = FlightWarning.OK
+        permitted_warnings = [FlightWarning.OK, FlightWarning.ARRIVAL_SHIFTED, FlightWarning.ARRIVAL_DELAY,
+                              FlightWarning.DEPARTURE_DELAY]
+        if flight_status[flight.pk] is FlightWarning.OK and flight_status[prev_flight.pk] not in permitted_warnings:
+            for prev_flight in prev_flights:
+                if prev_flight.pk in flight_status:
+                    if flight_status[prev_flight.pk] in permitted_warnings:
+                        if flight.flight_plan.source not in [prev_flight.flight_plan.destination,
+                                                             prev_flight.actual_destination]:
+                            flight_status[flight.pk] = FlightWarning.AIRCRAFT_WILL_BE_IN_ANOTHER_AIRPORT
+                        else:
+                            break
+                else:
+                    flight_status[flight.pk] = FlightWarning.FLIGHT_RULES_VIOLATION
+                    break
     return flight_status
 
 
@@ -139,7 +167,7 @@ def get_actually_available_aircraft(airport: Airport, service_duration_s=0):
     return map(lambda availability_info: availability_info['aircraft'], valid)
 
 
-def get_planned_available_aircraft(airport: Airport, datetime_point: datetime, service_duration_s=0):
+def get_planned_available_aircraft(airport: Airport, datetime_point: datetime, service_time=None):
     # TODO: make it smarter, this implementation guarantee that result is correct
     # current algo:
     # get all available aircraft now
@@ -152,10 +180,11 @@ def get_planned_available_aircraft(airport: Airport, datetime_point: datetime, s
     #  check that aircraft not departure from airport in range [arrived, planned_arrived_datetime]
     all_aircraft = {aircraft for aircraft in get_actually_available_aircraft(airport)}
     logger.info(f"Now in airport {airport}: {all_aircraft}")
-    with_service_datetime = datetime_point - timezone.timedelta(seconds=service_duration_s)
+    with_service_datetime = datetime_point - (timezone.timedelta(seconds=0) if service_time is None else service_time)
+    logger.info(f"with_service_datetime: {with_service_datetime}")
     flights = Flight.objects.filter(
-        Q(flight_plan__destination=airport, planning_arrival_datetime__lt=with_service_datetime) |
-        Q(flight_plan__source=airport, planning_departure_datetime__lt=datetime_point),
+        Q(flight_plan__destination=airport, planning_arrival_datetime__gt=with_service_datetime) |
+        Q(flight_plan__source=airport, planning_departure_datetime__gt=datetime_point),
         canceled=False).order_by('planning_arrival_datetime')
     for flight in flights:
         if flight.flight_plan.source == airport and flight.flight_plan.destination != airport:
@@ -169,7 +198,7 @@ def get_planned_available_aircraft(airport: Airport, datetime_point: datetime, s
                 raise ScheduleError(
                     f"Aircraft {flight.aircraft} is already in airport {airport} at {flight.planning_arrival_datetime}")
             all_aircraft.add(flight.aircraft.pk)
-            logger.info(f"Aicraft {flight.aircraft.pk} added: {flight}")
+            logger.info(f"Aircraft {flight.aircraft.pk} added: {flight}")
         elif flight.flight_plan.source == airport and flight.flight_plan.destination == airport:
             pass
         else:
@@ -193,7 +222,7 @@ def generate_single_schedule(flights_info, banned_flights):
     config = ScheduleConfig.objects.all().first()
     schedule, in_flight = [], []
     available_aircraft = defaultdict(set)
-    srv_dur_s = 60 * config.min_between_flights_delay_minutes
+    service_time = config.min_between_flights_delay_minutes
     for departure, arrival, plan_pk in flights_info:
         while in_flight and in_flight[0][0] <= departure:
             dep, destination, craft = in_flight.pop(0)
@@ -202,7 +231,7 @@ def generate_single_schedule(flights_info, banned_flights):
         if (departure, arrival, plan_pk) not in banned_flights:
             plan = FlightPlan.objects.get(pk=plan_pk)
             if plan.source not in available_aircraft:
-                available_aircraft[plan.source] = get_planned_available_aircraft(plan.source, departure, srv_dur_s)
+                available_aircraft[plan.source] = get_planned_available_aircraft(plan.source, departure, service_time)
             aircraft = aircraft_smart_chooser(departure, arrival, plan, available_aircraft[plan.source])
             if aircraft is None:
                 return None, [plan.pk,
@@ -210,9 +239,7 @@ def generate_single_schedule(flights_info, banned_flights):
                               f"available aircraft. All aircraft list: {available_aircraft[plan.source]}"]
             available_aircraft[plan.source].remove(aircraft)
             logger.info(f"Aircraft: {aircraft} departure from {plan.source}")
-            in_flight.append(
-                (arrival + timezone.timedelta(minutes=config.min_between_flights_delay_minutes), plan.destination,
-                 aircraft))
+            in_flight.append((arrival + config.min_between_flights_delay_minutes, plan.destination, aircraft))
             schedule.append((departure, arrival, aircraft, plan.pk))
     return schedule, None
 

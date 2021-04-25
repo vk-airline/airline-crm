@@ -21,10 +21,10 @@
             <th>Actual departure datetime</th>
             <th>Actual arrival datetime</th>
             <th>Actual Destination</th>
-            <th>Has arrived</th>
+            <th>Warnings</th>
             <th>Delete</th>
         </tr>
-        {% for flight in flights %}
+        {% for flight, status in flight_status %}
             <tr>
                 <td><a href="{% url 'crm:edit flight' flight.pk %}">{{ flight.flight_plan.flight_code }}</a></td>
                 <td><a href="{% url 'crm:aircraft view' flight.aircraft.id %}">{{ flight.aircraft.tail_code }}</a></td>
@@ -35,7 +35,7 @@
                 <td>{{ flight.actual_departure_datetime }}</td>
                 <td>{{ flight.actual_arrival_datetime }}</td>
                 <td>{{ flight.actual_destination.name }}</td>
-                <td>{{ flight.has_arrived }}</td>
+                <td>{{ status.name}}</td>
                 <td>
                     <button type="button" onclick="window.location.href='{% url 'crm:delete flight' flight.pk %}'">
                         X

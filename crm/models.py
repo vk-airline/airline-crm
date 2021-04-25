@@ -6,14 +6,16 @@ from multiselectfield import MultiSelectField
 
 
 class ScheduleConfig(models.Model):
-    show_past_flights_hours = models.PositiveSmallIntegerField()
-    show_future_flights_hours = models.PositiveSmallIntegerField()
-    warning_schedule_delay_minutes = models.PositiveSmallIntegerField()
-    warning_arrival_delay_minutes = models.PositiveSmallIntegerField()
-    warning_arrival_shifted_minutes = models.PositiveSmallIntegerField()
-    min_between_flights_delay_minutes = models.PositiveSmallIntegerField()
+    show_past_flights_time = models.DurationField()
+    show_future_flights_time = models.DurationField()
+
+    warning_schedule_delay_time = models.DurationField()
+    warning_arrival_delay_time = models.DurationField()
+    warning_arrival_shifted_time = models.DurationField()
+
+    min_between_flights_delay_minutes = models.DurationField()
     max_flight_generation_attempts = models.PositiveSmallIntegerField()
-    flight_generation_timeout_s = models.PositiveSmallIntegerField()
+    flight_generation_timeout = models.DurationField()
 
 
 class Airport(models.Model):
