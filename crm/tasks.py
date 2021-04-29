@@ -61,16 +61,15 @@ class ScheduleError(Exception):
 class FlightWarning(Enum):
     OK = 0
     CANCELED = 1
-    CHAIN_PROBLEM = 2
-    FLIGHT_RULES_VIOLATION = 3
-    DEPARTURE_DELAY = 4
-    ARRIVAL_DELAY = 5
-    ARRIVAL_SHIFTED = 6
-    PREVIOUS_ARRIVED_TO_LATE = 7
-    PREVIOUS_CAN_ARRIVE_TO_LATE = 8
-    PREVIOUS_NOT_DEPARTURE_TOO_LONG = 9
-    AIRCRAFT_WILL_BE_IN_ANOTHER_AIRPORT = 10
-    AIRCRAFT_IN_ANOTHER_AIRPORT = 11
+    FLIGHT_RULES_VIOLATION = 2
+    DEPARTURE_DELAY = 3
+    ARRIVAL_DELAY = 4
+    ARRIVAL_SHIFTED = 5
+    PREVIOUS_ARRIVED_TO_LATE = 6
+    PREVIOUS_CAN_ARRIVE_TO_LATE = 7
+    PREVIOUS_NOT_DEPARTURE_TOO_LONG = 8
+    AIRCRAFT_WILL_BE_IN_ANOTHER_AIRPORT = 9
+    AIRCRAFT_IN_ANOTHER_AIRPORT = 10
 
 
 def check_flights_compatibility(flight_query_set):
@@ -81,7 +80,14 @@ def check_flights_compatibility(flight_query_set):
         prev_flights = Flight.objects.filter(planning_departure_datetime__lt=flight.planning_departure_datetime,
                                              aircraft=flight.aircraft, canceled=False).order_by(
             '-planning_arrival_datetime')
-        prev_flight = prev_flights.first()
+        permitted_warnings = [FlightWarning.OK, FlightWarning.ARRIVAL_SHIFTED, FlightWarning.ARRIVAL_DELAY,
+                              FlightWarning.DEPARTURE_DELAY]
+        prev_flight = None
+        for prev_flight_cand in prev_flights:
+            if flight_status[prev_flight_cand.pk] in permitted_warnings:
+                prev_flight = prev_flight_cand
+                break
+
         if flight.flight_plan.source == flight.flight_plan.destination:
             flight_status[flight.pk] = FlightWarning.OK
             continue  # Init flight
@@ -132,8 +138,6 @@ def check_flights_compatibility(flight_query_set):
                         flight_status[flight.pk] = FlightWarning.ARRIVAL_SHIFTED
                     else:
                         flight_status[flight.pk] = FlightWarning.OK
-        permitted_warnings = [FlightWarning.OK, FlightWarning.ARRIVAL_SHIFTED, FlightWarning.ARRIVAL_DELAY,
-                              FlightWarning.DEPARTURE_DELAY]
         if flight_status[flight.pk] is FlightWarning.OK and flight_status[prev_flight.pk] not in permitted_warnings:
             for prev_flight in prev_flights:
                 if prev_flight.pk in flight_status:

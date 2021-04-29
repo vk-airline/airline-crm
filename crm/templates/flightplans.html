@@ -1,18 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-    {% load static %}
-    <link rel="stylesheet" type="text/css" href="{% static 'crm/style.css' %}">
+
+    <title>Flight plans</title>
+    {% include 'header.html' %}
 </head>
 <body>
 {% block content %}
-    <h1>Flight plans</h1>
     {% include "menu.html" %}
-    <table style="width:100%">
+        <h1 class="text-center">Flight plans</h1>
+    <table class="table table-hover text-center table-bordered font-monospace">
         <tr>
-            <th>Flight code</th>
+            <th>Plan code</th>
             <th>Source</th>
             <th>Destination</th>
             <th>Planning departure</th>
@@ -22,31 +21,33 @@
             <th>End date</th>
             <th>Days of week</th>
             <th>Status</th>
-            <td>Delete</td>
+            <th>Delete</th>
         </tr>
         {% for plan in plans %}
             <tr>
                 <td><a href="{% url 'crm:edit flight plan' plan.pk %}">{{ plan.flight_code }}</a></td>
-                <td>{{ plan.source }}</td>
-                <td>{{ plan.destination }}</td>
-                <td>{{ plan.planning_departure_time }}</td>
-                <td>{{ plan.planning_arrival_time }}</td>
+                <td>{{ plan.source.iata }}</td>
+                <td>{{ plan.destination.iata}}</td>
+                <td>{{ plan.planning_departure_time|date:"H:i"  }}</td>
+                <td>{{ plan.planning_arrival_time|date:"H:i"  }}</td>
                 <td>{{ plan.passanger_capacity }}</td>
-                <td>{{ plan.start_date }}</td>
-                <td>{{ plan.end_date }}</td>
+                <td>{{ plan.start_date |date:"d.m.y (D)" }}</td>
+                <td>{{ plan.end_date |date:"d.m.y (D)" }}</td>
                 <td>{{ plan.days_of_week }} </td>
                 <td>{{ plan.get_status_display }}</td>
                 <td>
-                    <button type="button" onclick="window.location.href='{% url 'crm:delete flight plan' plan.pk %}'">
+                    <button class="btn btn-outline-danger" onclick="window.location.href='{% url 'crm:delete flight plan' plan.pk %}'">
                         X
                     </button>
                 </td>
             </tr>
         {% endfor %}
     </table>
-    <button type="button" onclick="window.location.href='{% url 'crm:add flight plan' %}'" class="block">New Plan
-    </button>
-
+    <div class="d-grid">
+    <button class="btn btn-success p-3" onclick="window.location.href='{% url 'crm:add flight plan' %}'">Add new flight plan</button>
+    </div>
 {% endblock %}
+{% load static %}
+<script src="{% static 'crm/js/bootstrap.min.js' %}"></script>
 </body>
 </html>

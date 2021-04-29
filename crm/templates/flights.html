@@ -3,15 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
-    {% load static %}
-    <link rel="stylesheet" type="text/css" href="{% static 'crm/style.css' %}">
+    {% include 'header.html' %}
 </head>
 <body>
-{% block content %}
-    <h1>Flights</h1>
-    {% include "menu.html" %}
-    <table style="width:100%">
-        <tr>
+{% include "menu.html" %}
+<div class="container-fluid">
+    <h1 class="text-center">Flights</h1>
+    <table class="text-center table table-hover table-bordered font-monospace">
+        <tr class="align-middle border-dark">
             <th>Flight plan</th>
             <th>Aircraft</th>
             <th>Source</th>
@@ -25,25 +24,33 @@
             <th>Delete</th>
         </tr>
         {% for flight, status in flight_status %}
-            <tr>
-                <td><a href="{% url 'crm:edit flight' flight.pk %}">{{ flight.flight_plan.flight_code }}</a></td>
-                <td><a href="{% url 'crm:aircraft view' flight.aircraft.id %}">{{ flight.aircraft.tail_code }}</a></td>
-                <td>{{ flight.flight_plan.source.name }}</td>
-                <td>{{ flight.flight_plan.destination.name }}</td>
-                <td>{{ flight.planning_departure_datetime }}</td>
-                <td>{{ flight.planning_arrival_datetime }}</td>
-                <td>{{ flight.actual_departure_datetime }}</td>
-                <td>{{ flight.actual_arrival_datetime }}</td>
-                <td>{{ flight.actual_destination.name }}</td>
-                <td>{{ status.name}}</td>
+
+            <tr onclick="window.location='{% url 'crm:edit flight' flight.pk %}'"
+                class="{{ status.1 }} {% if flight.planning_departure_datetime < now %} border-dark {% endif %}
+{% if flight.canceled %}text-decoration-line-through fst-italic{% endif %}">
                 <td>
-                    <button type="button" onclick="window.location.href='{% url 'crm:delete flight' flight.pk %}'">
-                        X
+                    <a href="{% url 'crm:edit flight plan' flight.flight_plan.pk %}">{{ flight.flight_plan.flight_code }}</a>
+                </td>
+                <td><a href="{% url 'crm:aircraft view' flight.aircraft.id %}">{{ flight.aircraft.tail_code }}</a>
+                </td>
+                <td>{{ flight.flight_plan.source.iata }}</td>
+                <td>{{ flight.flight_plan.destination.iata }}</td>
+                <td>{{ flight.planning_departure_datetime|date:"D d.m.y H:i" }}</td>
+                <td>{{ flight.planning_arrival_datetime|date:"D d.m.y H:i" }}</td>
+                <td>{{ flight.actual_departure_datetime|date:"D d.m.y H:i" }}</td>
+                <td>{{ flight.actual_arrival_datetime|date:"D d.m.y H:i" }}</td>
+                <td>{{ flight.actual_destination.iata }}</td>
+                <td class="text-lg-start">{{ status.0 }}</td>
+                <td>
+                    <button class="btn btn-close btn-outline-danger btn-sm"
+                            onclick="window.location.href='{% url 'crm:delete flight' flight.pk %}'">
                     </button>
                 </td>
             </tr>
         {% endfor %}
     </table>
-{% endblock %}
+</div>
+{% load static %}
+<script src="{% static 'crm/js/bootstrap.min.js' %}"></script>
 </body>
 </html>

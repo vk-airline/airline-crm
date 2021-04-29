@@ -1,13 +1,103 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="h-100" lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Flight</title>
+    {% include 'header.html' %}
 </head>
-<body>
-<form method="post">{% csrf_token %}
-    {{ form.as_p }}
-    <input type="submit" value="Update">
-</form>
+<body class="h-100">
+{% include 'menu.html' %}
+<div class="container-fluid h-100">
+    <div class="row justify-content-center align-items-center h-100">
+        <div class="col-6 p-5 m-5 border border-1 ">
+            <form method="post" id="data">{% csrf_token %}
+                <div class="row">
+                    <div class="col">
+                        <div class="mb-3">
+                            <label for="id_planning_departure_datetime" class="form-label fw-bold">Planning departure
+                                datetime</label>
+                            {{ form.planning_departure_datetime }}
+                            <div class="text-danger">{{ form.planning_departure_datetime.errors }}</div>
+
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="mb-3">
+                            <label for="id_planning_arrival_datetime" class="form-label fw-bold">Planning arrival
+                                datetime</label>
+                            {{ form.planning_arrival_datetime }}
+                            <div class="text-danger">{{ form.planning_arrival_datetime.errors }}</div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <div class="mb-3">
+                            <label for="id_actual_departure_datetime" class="form-label fw-bold">Actual departure
+                                datetime</label>
+                            {{ form.actual_departure_datetime }}
+                            <div class="text-danger">{{ form.actual_departure_datetime.errors }}</div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="mb-3">
+                            <label for="id_actual_arrival_datetime" class="form-label fw-bold">Actual arrival datetime</label>
+                            {{ form.actual_arrival_datetime }}
+                            <div class="text-danger">{{ form.actual_arrival_datetime.errors }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-6">
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <label for="id_flight_plan" class="form-label fw-bold">Flight plan</label>
+                            </div>
+                            <div class="col-6 mb-3">
+                                {{ form.flight_plan }}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <label class="fw-bold" for="id_aircraft">Aircraft</label>
+                            </div>
+                            <div class="col-6 mb-3">
+                                {{ form.aircraft }}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <label class="fw-bold" for="id_actual_destination">Actual destination</label>
+                            </div>
+                            <div class="col-6 mb-3">
+                                {{ form.actual_destination }}
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <label for="id_canceled" class="fw-bold">Canceled</label>
+                                {{ form.canceled }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-6 mb-3">
+                        <div class="row">
+                            <div class="col">
+                                {{ form.employees }}
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" form="data" class="btn btn-primary">Submit</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+{% load static %}
+<script src="{% static 'crm/js/bootstrap.min.js' %}"></script>
 </body>
 </html>

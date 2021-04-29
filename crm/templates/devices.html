@@ -1,16 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-    {% load static %}
-    <link rel="stylesheet" type="text/css" href="{% static 'crm/style.css' %}">
+    <title>Devices</title>
+    {% include 'header.html' %}
 </head>
 <body>
 {% block content %}
-    <h1>Aircraft devices</h1>
     {% include "menu.html" %}
-    <table style="width:100%">
+        <h1 class="text-center">Aircraft devices</h1>
+    <table class="table table-hover table-bordered font-monospace text-center">
         <tr>
             <th>Aircraft</th>
             <th>Device name</th>
@@ -29,7 +27,7 @@
             <tr>
                 <td>{{ device.aircraft }}</td>
                 <td>{{ device.device_name }}</td>
-                <td>{{ device.latest_update }}</td>
+                <td>{{ device.latest_update |date:"D d.m.y H:i"}}</td>
                 <td>{{ device.after_service_cycles }}</td>
                 <td>{{ device.service_cycles_period }}</td>
                 <td>{{ device.total_operation_cycles }}</td>
@@ -42,5 +40,7 @@
         {% endfor %}
     </table>
 {% endblock %}
+{% load static %}
+<script src="{% static 'crm/js/bootstrap.min.js' %}"></script>
 </body>
 </html>

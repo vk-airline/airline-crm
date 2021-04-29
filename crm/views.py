@@ -8,7 +8,7 @@ from django.views.generic import ListView, DetailView, FormView, DeleteView
 from .forms import FlightForm, FlightPlanForm
 from .models import Employee, EmployeeLog, Aircraft, AircraftDeviceLife, AircraftLog, Flight, FlightPlan, ScheduleConfig
 from .tasks import check_airports_availability, generate_schedules, assign_employees, create_flights, \
-    check_flights_compatibility
+    check_flights_compatibility, FlightWarning
 from django.http import HttpResponse, HttpResponseRedirect
 
 from django.shortcuts import render
@@ -66,7 +66,19 @@ class FlightsView(PermissionRequiredMixin, ListView):
             planning_departure_datetime__lte=timezone.now() + config.show_future_flights_time
         ).order_by('planning_departure_datetime')
         status_dict = check_flights_compatibility(flights)
-        context['flight_status'] = zip(flights, [status_dict[flight.pk] for flight in flights])
+
+        def status_color(status):
+            if status in [FlightWarning.OK]:
+                return "table-success"
+            elif status in [FlightWarning.ARRIVAL_SHIFTED, FlightWarning.ARRIVAL_DELAY,
+                            FlightWarning.DEPARTURE_DELAY]:
+                return "table-warning"
+            else:
+                return "table-danger"
+        context['now'] = timezone.now()
+        context['flight_status'] = zip(flights, [
+            (status_dict[flight.pk].name.replace('_', ' '), status_color(status_dict[flight.pk]))
+            for flight in flights])
         return context
 
 

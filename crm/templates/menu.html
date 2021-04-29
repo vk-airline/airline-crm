@@ -1,37 +1,32 @@
-{% block sidebar %}
-    <ul class="side-bar">
-        <li class="menu-item">
-            <a href="{% url 'crm:index' %}">Main page</a>
-        </li>
-        {% if perms.crm.view_flights %}
-            <li class="menu-item">
-                <a href="{% url 'crm:flights' %}">Flights</a>
-            </li>
-        {% endif %}
-        {% if perms.crm.view_flightplan %}
-            <li class="menu-item">
-                <a href="{% url 'crm:flight plans' %}">Flight Plans</a>
-            </li>
-        {% endif %}
-        {% if perms.crm.view_aircraft %}
-            <li class="menu-item">
-                <a href="{% url 'crm:aircrafts' %}"> Aircrafts</a>
-            </li>
-        {% endif %}
-
-
-        {% if perms.crm.view_aircraftdevicelife %}
-            <li class="menu-item">
-                <a href="{% url 'crm:aircrafts devices' %}">Aircraft Devices</a>
-            </li>
-        {% endif %}
-        {% if perms.crm.view_employee %}
-            <li class="menu-item">
-                <a href="{% url 'crm:employees' %}">Employees</a>
-            </li>
-        {% endif %}
-        <li>
-            <a class="menu-item logout-item" href="{% url 'logout' %}">Logout</a>
-        </li>
-    </ul>
-{% endblock %}
+<nav class="navbar navbar-expand-lg  navbar-dark bg-dark">
+    <div class="container justify-content-center">
+        <a class="navbar-brand fs-4" href="{% url 'crm:index' %}">Airline CRM</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarNavAltMarkup"
+                aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="nav" id="navbarNavAltMarkup">
+            <div class="navbar-nav fs-5">
+                {% if perms.crm.view_flights %}
+                    <a class="nav-link" href="{% url 'crm:flights' %}">Flights</a>
+                {% endif %}
+                {% if perms.crm.view_flightplan %}
+                    <a class="nav-link" href="{% url 'crm:flight plans' %}">Flight Plans</a>
+                {% endif %}
+                {% if perms.crm.view_aircraft %}
+                    <a class="nav-link" href="{% url 'crm:aircrafts' %}"> Aircrafts</a>
+                {% endif %}
+                {% if perms.crm.view_aircraftdevicelife %}
+                    <a class="nav-link" href="{% url 'crm:aircrafts devices' %}">Aircraft Devices</a>
+                {% endif %}
+                {% if perms.crm.view_employee %}
+                    <a class="nav-link" href="{% url 'crm:employees' %}">Employees</a>
+                {% endif %}
+                <a class="text-danger nav-link" href='{% url "logout" %}'>
+                    Logout
+                </a>
+            </div>
+        </div>
+    </div>
+</nav>
