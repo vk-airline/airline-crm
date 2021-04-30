@@ -24,7 +24,7 @@
             <th>Delete</th>
         </tr>
         {% for plan in plans %}
-            <tr>
+            <tr onclick="window.location='{% url 'crm:edit flight plan' plan.pk %}'">
                 <td><a href="{% url 'crm:edit flight plan' plan.pk %}">{{ plan.flight_code }}</a></td>
                 <td>{{ plan.source.iata }}</td>
                 <td>{{ plan.destination.iata}}</td>

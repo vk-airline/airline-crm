@@ -1,13 +1,106 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Flight plan</title>
+    {% include 'header.html' %}
 </head>
 <body>
-<form method="post">{% csrf_token %}
-    {{ form.as_p }}
-    <input type="submit" value="Update">
-</form>
+{% include 'menu.html' %}
+<div class="vh-100 d-flex align-items-center justify-content-center">
+    <div class="p-5 m-3 border border-primary border-1 rounded-3 justify-content-center fw-bold">
+        <form method="post" id="data">{% csrf_token %}
+            <div class="row mb-3 ">
+                <div class="col">
+                    <label for="id_planning_departure_time">
+                        Planing departure time
+                    </label>
+                    {{ form.planning_departure_time }}
+                    <div class="text-danger">{{ form.planning_departure_time.errors }}</div>
+                </div>
+                <div class="col">
+                    <label for="id_source">
+                        Source airport
+                    </label>
+                    {{ form.source }}
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col">
+                    <label for="id_planning_departure_time">
+                        Planing arrival time
+                    </label>
+                    {{ form.planning_arrival_time }}
+                    <div class="text-danger">{{ form.planning_arrival_time.errors }}</div>
+                </div>
+                <div class="col">
+                    <label for="id_destination">
+                        Destination airport
+                    </label>
+                    {{ form.destination }}
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col">
+                    <label for="id_start_date">
+                        Start date
+                    </label>
+                    {{ form.start_date }}
+                    <div class="text-danger">{{ form.start_date.errors }}</div>
+                </div>
+                <div class="col">
+                    <label for="id_end_date">
+                        End date
+                    </label>
+                    {{ form.end_date }}
+                    <div class="text-danger">{{ form.end_date.errors }}</div>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col">
+                    <label for="id_flight_code">
+                        Flight code
+                    </label>
+                    {{ form.flight_code }}
+                </div>
+                <div class="col">
+                    <label for="id_passanger_capacity">
+                        Passanger capacity
+                    </label>
+                    {{ form.passanger_capacity }}
+                    <div class="text-danger">{{ form.passanger_capacity.errors }}</div>
+                </div>
+                <div class="col">
+                    <label for="id_status">
+                        Status
+                    </label>
+                    {{ form.status }}
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col d-flex justify-content-center align-items-center">
+                    <label for="id_days_of_week" class=>Days of week</label>
+                    <div class="fw-normal ">
+                        {{ form.days_of_week }}
+                        <div class="text-danger"> {{ form.days_of_week.errors }} </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <lable for="id_description">
+                        Description
+                    </lable>
+                    {{ form.description }}
+                </div>
+            </div>
+            <div class="row">
+                <button type="submit" form="data" class="btn btn-primary">Submit</button>
+            </div>
+        </form>
+
+
+    </div>
+
+
+    {% load static %}
+    <script src="{% static 'crm/js/bootstrap.min.js' %}"></script>
 </body>
 </html>
