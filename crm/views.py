@@ -61,6 +61,8 @@ class FlightsView(PermissionRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         config = ScheduleConfig.objects.all().first()
+        if not config:
+            return context
         flights = Flight.objects.filter(
             planning_departure_datetime__gte=timezone.now() - config.show_past_flights_time,
             planning_departure_datetime__lte=timezone.now() + config.show_future_flights_time
