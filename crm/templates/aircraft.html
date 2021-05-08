@@ -3,15 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
-    {% load static %}
-    <link rel="stylesheet" type="text/css" href="{% static 'crm/style.css' %}">
+    {% include 'header.html' %}
 </head>
 <body>
 {% block content %}
-    <h1>Aircraft {{ object.tail_code }}</h1>
     {% include "menu.html" %}
-    <h2> Basic info </h2>
-    <table>
+    <h1 class="text-center">Aircraft {{ object.tail_code }}</h1>
+    <h2>Basic info</h2>
+    <table class="table table-hover text-center table-bordered font-monospace">
         <tr>
             <td>Tail code</td>
             <td>Aircraft model</td>
@@ -42,7 +41,7 @@
     {% if perms.crm.view_aircraftdevicelife %}
         <hr>
         <h2>Devices</h2>
-        <table style="width:100%">
+        <table class="table table-hover text-center table-bordered font-monospace">
             <tr>
                 <th>Aircraft</th>
                 <th>Device name</th>
