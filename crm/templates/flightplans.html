@@ -8,7 +8,9 @@
 <body>
 {% block content %}
     {% include "menu.html" %}
-        <h1 class="text-center">Flight plans</h1>
+    <h2 class="text-end">{{ now |date:"H:i d.m.y (D)" }}</h2>
+    <h1 class="text-center">Flight plans</h1>
+
     <table class="table table-hover text-center table-bordered font-monospace">
         <tr>
             <th>Plan code</th>
@@ -27,27 +29,38 @@
             <tr onclick="window.location='{% url 'crm:edit flight plan' plan.pk %}'">
                 <td><a href="{% url 'crm:edit flight plan' plan.pk %}">{{ plan.flight_code }}</a></td>
                 <td>{{ plan.source.iata }}</td>
-                <td>{{ plan.destination.iata}}</td>
-                <td>{{ plan.planning_departure_time|date:"H:i"  }}</td>
-                <td>{{ plan.planning_arrival_time|date:"H:i"  }}</td>
+                <td>{{ plan.destination.iata }}</td>
+                <td>{{ plan.planning_departure_time|date:"H:i" }}</td>
+                <td>{{ plan.planning_arrival_time|date:"H:i" }}</td>
                 <td>{{ plan.passanger_capacity }}</td>
                 <td>{{ plan.start_date |date:"d.m.y (D)" }}</td>
                 <td>{{ plan.end_date |date:"d.m.y (D)" }}</td>
                 <td>{{ plan.days_of_week }} </td>
                 <td>{{ plan.get_status_display }}</td>
                 <td>
-                    <button class="btn btn-outline-danger" onclick="window.location.href='{% url 'crm:delete flight plan' plan.pk %}'">
-                        X
-                    </button>
+                    <div class="delete-btn-div">
+                        <button class="btn btn-close btn-outline-danger"
+                                onclick="window.location.href='{% url 'crm:delete flight plan' plan.pk %}'">
+                        </button>
+                    </div>
                 </td>
             </tr>
         {% endfor %}
     </table>
     <div class="d-grid">
-    <button class="btn btn-success p-3" onclick="window.location.href='{% url 'crm:add flight plan' %}'">Add new flight plan</button>
+        <button class="btn btn-success p-3" onclick="window.location.href='{% url 'crm:add flight plan' %}'">Add new
+            flight plan
+        </button>
     </div>
 {% endblock %}
 {% load static %}
 <script src="{% static 'crm/js/bootstrap.min.js' %}"></script>
+<script type="text/javascript">
+    document.querySelectorAll('.delete-btn-div').forEach(item => {
+        item.addEventListener('click', evt => {
+            evt.stopPropagation()
+        })
+    })
+</script>
 </body>
 </html>

@@ -42,9 +42,12 @@
                 <td>{{ flight.actual_destination.iata }}</td>
                 <td class="text-lg-start">{{ status.0 }}</td>
                 <td>
-                    <button class="btn btn-close btn-outline-danger btn-sm"
-                            onclick="window.location.href='{% url 'crm:delete flight' flight.pk %}'">
-                    </button>
+                    <div class="delete-btn-div">
+                        <button class="btn btn-close btn-outline-danger btn-sm"
+                                onclick="window.location.href='{% url 'crm:delete flight' flight.pk %}'">
+                        </button>
+                    </div>
+
                 </td>
             </tr>
         {% endfor %}
@@ -52,5 +55,10 @@
 </div>
 {% load static %}
 <script src="{% static 'crm/js/bootstrap.min.js' %}"></script>
+<script type="text/javascript">
+    document.querySelectorAll('.delete-btn-div').forEach(item => {
+        item.addEventListener('click', evt => {evt.stopPropagation()})
+    })
+</script>
 </body>
 </html>

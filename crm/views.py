@@ -118,6 +118,7 @@ class FlightPlansView(PermissionRequiredMixin, ListView):
         context['plans'] = FlightPlan.objects.filter(
             end_date__gte=timezone.now() - timezone.timedelta(days=1),
         ).order_by('start_date')
+        context['now'] = timezone.now()
         return context
 
 
