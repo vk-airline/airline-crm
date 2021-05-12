@@ -92,7 +92,7 @@ class FlightPlan(models.Model):
         return reverse("edit flight plan", kwargs={'pk': self.pk})
 
     def __str__(self):
-        return self.flight_code
+        return f"flight plan {self.flight_code}"
 
 
 class Occupation(models.Model):
@@ -196,4 +196,4 @@ class Flight(models.Model):
         return reverse("crm:edit flight", kwargs={'pk': self.pk})
 
     def __str__(self):
-        return f"{str(self.flight_plan)}: departure: {self.planning_departure_datetime} arrival: {self.planning_arrival_datetime}"
+        return f"flight {str(self.pk)}"

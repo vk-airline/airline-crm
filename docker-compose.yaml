@@ -40,6 +40,8 @@ services:
       - RABBITMQ_PASS
       - RABBITMQ_HOST=rmq
       - RABBITMQ_PORT
+      - ADMIN_LOGIN
+      - ADMIN_PASSWORD
     networks:
       - main
     ports:

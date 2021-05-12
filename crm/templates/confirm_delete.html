@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Confirmation</title>
+    {% include 'header.html' %}
+</head>
+<body>
+{% include "menu.html" %}
+<form method="post">{% csrf_token %}
+    <div class="d-flex flex-column vh-100 align-items-center justify-content-center">
+        <div class="row">
+            <h1>Yes, I'm sure.</h1>
+        </div>
+        <div class="row">
+            <button type="submit" class="btn btn-lg btn-danger"> Delete {{ object }} </button>
+        </div>
+    </div>
+</form>
+{% load static %}
+<script src="{% static 'crm/js/bootstrap.min.js' %}"></script>
+</body>
+</html>

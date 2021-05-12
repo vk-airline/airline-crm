@@ -72,6 +72,7 @@ class FlightWarning(Enum):
     AIRCRAFT_IN_ANOTHER_AIRPORT = 10
 
 
+
 permitted_warnings = [FlightWarning.OK, FlightWarning.ARRIVAL_SHIFTED, FlightWarning.ARRIVAL_DELAY,
                       FlightWarning.DEPARTURE_DELAY]
 
@@ -365,13 +366,11 @@ def create_flights(data):
     Flight.objects.filter(canceled=False, planning_departure_datetime__gte=start_dt).delete()
     for departure, arrival, aircraft_pk, plan_pk, crew in schedule:
         plan = FlightPlan.objects.get(pk=plan_pk)
-        canceled = departure < timezone.now()
         logger.info(f"Departure: {departure} Arrival: {arrival} Aircraft: {aircraft_pk} Plan:  {plan}")
         flight = Flight.objects.create(planning_departure_datetime=departure,
                                        planning_arrival_datetime=arrival,
                                        aircraft_id=aircraft_pk,
-                                       flight_plan=plan,
-                                       canceled=canceled)
+                                       flight_plan=plan)
         flight.employees.set(crew)
         flight.save()
         plan.status = FlightPlan.SUCCESS  # HAHA

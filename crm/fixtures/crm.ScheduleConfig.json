@@ -1,0 +1,16 @@
+[
+{
+    "model": "crm.scheduleconfig",
+    "pk": 1,
+    "fields": {
+        "show_past_flights_time": "7 00:00:00",
+        "show_future_flights_time": "30 00:00:00",
+        "warning_schedule_delay_time": "00:10:00",
+        "warning_arrival_delay_time": "00:10:00",
+        "warning_arrival_shifted_time": "00:10:00",
+        "min_between_flights_delay_minutes": "00:45:00",
+        "max_flight_generation_attempts": 10,
+        "flight_generation_timeout": "00:01:00"
+    }
+}
+]

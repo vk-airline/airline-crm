@@ -105,7 +105,7 @@ class FlightView(PermissionRequiredMixin, FormView):
 class FlightDelete(DeleteView):
     model = Flight
     success_url = reverse_lazy('crm:flights')
-    template_name = 'flight_confirm_delete.html'
+    template_name = 'confirm_delete.html'
 
 
 class FlightPlansView(PermissionRequiredMixin, ListView):
@@ -115,9 +115,7 @@ class FlightPlansView(PermissionRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['plans'] = FlightPlan.objects.filter(
-            end_date__gte=timezone.now() - timezone.timedelta(days=1),
-        ).order_by('start_date')
+        context['plans'] = FlightPlan.objects.all().order_by('start_date')
         context['now'] = timezone.now()
         return context
 
@@ -148,7 +146,7 @@ class FlightPlanView(PermissionRequiredMixin, FormView):
 class FlightPlanDelete(DeleteView):
     model = FlightPlan
     success_url = reverse_lazy('crm:flight plans')
-    template_name = 'flightplan_confirm_delete.html'
+    template_name = "confirm_delete.html"
 
 
 class EmployeeView(LoginRequiredMixin, DetailView):

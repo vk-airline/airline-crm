@@ -11,6 +11,7 @@
     <h1 class="text-center">Flights</h1>
     <table class="text-center table table-hover table-bordered font-monospace">
         <tr class="align-middle border-dark">
+            <th>ID</th>
             <th>Flight plan</th>
             <th>Aircraft</th>
             <th>Source</th>
@@ -28,6 +29,7 @@
             <tr onclick="window.location='{% url 'crm:edit flight' flight.pk %}'"
                 class="{{ status.1 }} {% if flight.planning_departure_datetime < now %} border-dark {% endif %}
 {% if flight.canceled %}text-decoration-line-through fst-italic{% endif %}">
+                <td>{{flight.pk}}</td>
                 <td>
                     <a href="{% url 'crm:edit flight plan' flight.flight_plan.pk %}">{{ flight.flight_plan.flight_code }}</a>
                 </td>
@@ -57,7 +59,9 @@
 <script src="{% static 'crm/js/bootstrap.min.js' %}"></script>
 <script type="text/javascript">
     document.querySelectorAll('.delete-btn-div').forEach(item => {
-        item.addEventListener('click', evt => {evt.stopPropagation()})
+        item.addEventListener('click', evt => {
+            evt.stopPropagation()
+        })
     })
 </script>
 </body>
