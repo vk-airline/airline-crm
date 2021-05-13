@@ -363,10 +363,12 @@ def create_flights(data):
     start_dt, schedule = data
     logger.info(f"Schedule: {schedule}")
     # TODO Make all queries in single transaction
-    Flight.objects.filter(canceled=False, planning_departure_datetime__gte=start_dt).delete()
+    Flight.objects.filter(
+        canceled=False, planning_departure_datetime__gte=start_dt).delete()
     for departure, arrival, aircraft_pk, plan_pk, crew in schedule:
         plan = FlightPlan.objects.get(pk=plan_pk)
-        logger.info(f"Departure: {departure} Arrival: {arrival} Aircraft: {aircraft_pk} Plan:  {plan}")
+        logger.info(
+            f"Departure: {departure} Arrival: {arrival} Aircraft: {aircraft_pk} Plan:  {plan}")
         flight = Flight.objects.create(planning_departure_datetime=departure,
                                        planning_arrival_datetime=arrival,
                                        aircraft_id=aircraft_pk,
