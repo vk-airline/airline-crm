@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 from django.urls import reverse
 from timezone_field import TimeZoneField
 from multiselectfield import MultiSelectField
+from django.db.models import Q
 
 
 class ScheduleConfig(models.Model):
@@ -117,6 +118,17 @@ class Employee(models.Model):
             return Airport.objects.none()
         # if there are any get the planned destination
         return flights[0].flight_plan.destination
+
+    # checks whether or not an employee is available in range
+    # start_date <= is_available? < end_date
+    def is_available(self, start_date, end_date):
+        # if query returns something then employee is not available
+        # at some point in the range
+        query = Q(employee=self) & ~Q(status=EmployeeLog.OK) & (
+            (Q(disability_end__gte=start_date) & Q(disability_end__lt=end_date)) |
+            (Q(disability_start__gte=start_date) & Q(disability_start__lt=end_date))
+        )
+        return not bool(EmployeeLog.objects.filter(query))
 
     def __str__(self):
         if self.user.first_name and self.user.last_name:
