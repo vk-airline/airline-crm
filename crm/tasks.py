@@ -287,6 +287,13 @@ def generate_schedules(self, start_dt: str):
     return start_dt, schedules
 
 
+def update_plan_status(plans, status):
+    for pk in plans:
+        plan = FlightPlan.objects.get(pk=pk)
+        plan.status = status
+        plan.save()
+
+
 @dataclasses.dataclass
 class EmployeeState:  # Класс, энкапсулирующий состояние конкретного сотрудника на одной итерации алгоритма
     obj: Employee
@@ -296,7 +303,6 @@ class EmployeeState:  # Класс, энкапсулирующий состоя�
 
 @shared_task(bind=True)
 def assign_employees(self, data):
-    # TODO: update states of plans: PROCESSING_EPM/ERROR_EPM
     start_dt, schedules = data
     states: list[EmployeeState] = [
         # if current location of an employee is unknown, we assume
@@ -305,10 +311,12 @@ def assign_employees(self, data):
                       or Airport.objects.get(id=1), start_dt)
         for emp in Employee.objects.all().order_by('id')
     ]
+    plans = set(flights[3] for flights in schedules[0]) # assuming all schedules share flightplans
+    update_plan_status(plans, FlightPlan.PROCESSING_EPM)
 
     variants = []
     for flights in schedules:
-        variant = []
+        variant, failed = [], False
         for (departure_time, arrival_time, aircraft_id, plan_id) in flights:
             aircraft = Aircraft.objects.get(id=aircraft_id)
             flight_plan = FlightPlan.objects.get(id=plan_id)
@@ -335,23 +343,26 @@ def assign_employees(self, data):
                 attendants = [e for e in available if e.obj.occupation.id in [
                     3, 4]][:adi.attendants_number]
             except IndexError:
-                self.request.chain = None
-                return
-
+                failed = True
+                break
             crew = pilots + attendants
-
             for state in crew:
                 state.location = flight_plan.destination
                 state.time = arrival_time
-
             variant.append(
                 (departure_time, arrival_time, aircraft_id,
                  plan_id, [p.obj.id for p in crew])
             )
-        variants.append(variant)
+        if not failed:
+            variants.append(variant)
+
+    if not variants:
+        update_plan_status(plans, FlightPlan.ERROR_EPM)
+        self.request.chain = None
+        return
 
     # TODO: evaluate each one of the possible variants of crew
-    # configureations and choose the best one
+    # configurations and choose the best one
     def choose_best(variants):
         return variants[0]
 
