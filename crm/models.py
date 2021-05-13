@@ -125,10 +125,27 @@ class Employee(models.Model):
 
 
 class EmployeeLog(models.Model):
+    OK = 0
+    NO_SHOW = 1
+    LEAVE_UNPAID = 2
+    LEAVE_PAID = 3
+    LEAVE_SICK = 4
+    EMPLOYEE_LOG_STATES = (
+        (OK, "OK"),
+        (NO_SHOW, "NO-SHOW"),
+        (LEAVE_UNPAID, "LEAVE UNPAID"),
+        (LEAVE_PAID, "LEAVE PAID"),
+        (LEAVE_SICK, "LEAVE SICK"),
+    )
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
     disability_start = models.DateTimeField(null=True)
     disability_end = models.DateTimeField(null=True)
-    description = models.CharField(max_length=1024)
+    status = models.SmallIntegerField(
+        choices=EMPLOYEE_LOG_STATES, default=EMPLOYEE_LOG_STATES[0])
+    description = models.CharField(max_length=1024, null=True)
+
+    def __str__(self):
+        return str(self.employee) + ' ' + self.EMPLOYEE_LOG_STATES[self.status][1]
 
 
 class Aircraft(models.Model):
