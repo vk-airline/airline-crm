@@ -1,6 +1,8 @@
+from datetime import datetime
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.urls import reverse
+from django.utils.timezone import make_aware
 from timezone_field import TimeZoneField
 from multiselectfield import MultiSelectField
 from django.db.models import Q
@@ -175,6 +177,14 @@ class Aircraft(models.Model):
     def __str__(self):
         return self.tail_code
 
+    def departed(self):
+        for device in self.aircraftdevicelife_set.all():
+            device.depart_update()
+
+    def landed(self, hours_flown):
+        for device in self.aircraftdevicelife_set.all():
+            device.land_update(hours_flown)
+
 
 class AircraftDynamicInfo(models.Model):
     aircraft = models.OneToOneField(Aircraft, on_delete=models.CASCADE)
@@ -199,6 +209,20 @@ class AircraftDeviceLife(models.Model):
     service_time_period_h = models.PositiveIntegerField()
     service_cycles_period = models.PositiveIntegerField()
 
+    def depart_update(self):
+        self.total_operation_cycles += 1
+        self.after_service_cycles += 1
+        self.latest_update = make_aware(datetime.now())
+        self.save()
+
+    def land_update(self, hours_flown):
+        self.total_operation_time_h += hours_flown
+        self.after_service_time_h += hours_flown
+        self.latest_update = make_aware(datetime.now())
+        self.save()
+
+    def __str__(self):
+        return str(self.aircraft) + ' ' + self.device_name
 
 AIRCRAFT_EVENT_STATUS = ((0, "Can fly with passengers"), (1, "Can fly without passengers"), (2, "Can't fly at all"))
 

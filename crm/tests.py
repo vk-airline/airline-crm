@@ -1,9 +1,11 @@
 import os
 from datetime import datetime, timezone
 from django.test import TestCase, Client
-from .models import Employee, Airport, FlightPlan, Flight, Aircraft
+from unittest.mock import patch
+from .models import Employee, Airport, FlightPlan, Flight, Aircraft, AircraftDeviceLife
 from .tasks import assign_employees
 from django.utils import timezone
+from django.utils.timezone import make_aware
 
 
 class EmployeeModelTest(TestCase):
@@ -85,6 +87,64 @@ class AssignEmployeesTest(TestCase):
                for tup in schedule_variants[0]]
         self.assertEquals(start_date, start_date)
         self.assertEquals(ans, schedule)
+
+
+class AircraftDeviceLifeTest(TestCase):
+    fixtures = [
+        "crm.Aircraft.json",
+        "crm.AircraftDeviceLife.json",
+    ]
+
+    @patch('crm.models.datetime')
+    def test_depart_update(self, mock):
+        mock.now.return_value = datetime.now()
+        device = AircraftDeviceLife.objects.get(pk=1)
+        device.depart_update()
+        self.assertEquals(device.total_operation_cycles, 2)
+        self.assertEquals(device.after_service_cycles, 2)
+        self.assertEquals(device.latest_update,
+                          make_aware(mock.now.return_value))
+
+    @patch('crm.models.datetime')
+    def test_land_update(self, mock):
+        mock.now.return_value = datetime.now()
+        device = AircraftDeviceLife.objects.get(pk=1)
+        device.land_update(12)
+        self.assertEquals(device.total_operation_time_h, 13)
+        self.assertEquals(device.after_service_time_h, 13)
+        self.assertEquals(device.latest_update,
+                          make_aware(mock.now.return_value))
+
+
+class AircraftLifeTest(TestCase):
+    fixtures = [
+        "crm.Aircraft.json",
+        "crm.AircraftDeviceLife.json",
+    ]
+
+    @patch('crm.models.datetime')
+    def test_departed(self, mock):
+        mock.now.return_value = datetime.now()
+        aircraft = Aircraft.objects.get(pk=1)
+        aircraft.departed()
+
+        device = AircraftDeviceLife.objects.get(pk=1)
+        self.assertEquals(device.total_operation_cycles, 2)
+        self.assertEquals(device.after_service_cycles, 2)
+        self.assertEquals(device.latest_update,
+                          make_aware(mock.now.return_value))
+
+    @patch('crm.models.datetime')
+    def test_landed(self, mock):
+        mock.now.return_value = datetime.now()
+        aircraft = Aircraft.objects.get(pk=1)
+        aircraft.landed(12)
+
+        device = AircraftDeviceLife.objects.get(pk=1)
+        self.assertEquals(device.total_operation_time_h, 13)
+        self.assertEquals(device.after_service_time_h, 13)
+        self.assertEquals(device.latest_update,
+                          make_aware(mock.now.return_value))
 
 
 class TestFlightPlanPage(TestCase):
