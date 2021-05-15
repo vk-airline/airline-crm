@@ -1,17 +1,22 @@
+import math
+from datetime import datetime
 from celery import chain
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required as p_req
 from django.contrib.auth.mixins import PermissionRequiredMixin, LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.views.generic import ListView, DetailView, FormView, DeleteView
+from django.http import HttpResponse, HttpResponseRedirect, Http404
+from django.shortcuts import render
+
+from rest_framework import mixins, generics, status
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from .forms import FlightForm, FlightPlanForm
-from .models import Employee, EmployeeLog, Aircraft, AircraftDeviceLife, AircraftLog, Flight, FlightPlan, ScheduleConfig
+from .models import Employee, EmployeeLog, Aircraft, AircraftDeviceLife, AircraftLog, Flight, FlightPlan, ScheduleConfig, AircraftDynamicInfo
 from .tasks import check_airports_availability, generate_schedules, assign_employees, create_flights, \
     check_flights_compatibility, FlightWarning
-from django.http import HttpResponse, HttpResponseRedirect
-
-from django.shortcuts import render
 
 
 @login_required
@@ -164,3 +169,63 @@ class EmployeeView(LoginRequiredMixin, DetailView):
             disability_end__gte=timezone.now()
         ).order_by('disability_start')[:5]
         return context
+
+
+class FlightDeparture(APIView):
+    def get_object(self, pk):
+        try:
+            return Flight.objects.get(pk=pk)
+        except Flight.DoesNotExist:
+            raise Http404
+
+    def post(self, request, pk):
+        flight = self.get_object(pk)
+        if flight.actual_departure_datetime or flight.actual_arrival_datetime:
+            return Response(status=status.HTTP_409_CONFLICT)
+
+        flight.actual_departure_datetime = datetime.fromisoformat(
+            request.data['actual_departure_datetime'])
+        flight.save()
+        flight.aircraft.departed()
+        return Response(status=status.HTTP_200_OK)
+
+
+class FlightArrival(APIView):
+    def get_object(self, pk):
+        try:
+            return Flight.objects.get(pk=pk)
+        except Flight.DoesNotExist:
+            raise Http404
+
+    def post(self, request, pk):
+        flight = self.get_object(pk)
+        if not flight.actual_departure_datetime or flight.actual_arrival_datetime:
+            return Response(status=status.HTTP_409_CONFLICT)
+
+        flight.actual_arrival_datetime = datetime.fromisoformat(
+            request.data['actual_arrival_datetime'])
+        flight.save()
+
+        hours_flown = math.ceil((flight.actual_arrival_datetime -
+                                 flight.actual_arrival_datetime).total_seconds() / 3600)
+        if hours_flown < 0:
+            return Response(status=status.HTTP_409_CONFLICT)
+
+        flight.aircraft.landed(hours_flown)
+        return Response(status=status.HTTP_200_OK)
+
+class FuelView(APIView):
+    def get_object(self, pk):
+        try:
+            return AircraftDynamicInfo.objects.get(aircraft=pk)
+        except AircraftDynamicInfo.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk):
+        dyinfo = self.get_object(pk)
+        return Response({"fuel_remaining_kg": dyinfo.fuel_remaining_kg}, status=status.HTTP_200_OK)
+
+    def post(self, request, pk):
+        dyinfo = self.get_object(pk)
+        dyinfo.update_fuel(request.data["fuel_remaining_kg"])
+        return Response(status=status.HTTP_200_OK)

@@ -195,6 +195,9 @@ class AircraftDynamicInfo(models.Model):
     attendants_number = models.PositiveSmallIntegerField(default=0)
     fuel_remaining_kg = models.PositiveIntegerField()
 
+    def update_fuel(self, fuel_kg):
+        self.fuel_remaining_kg = fuel_kg
+        self.save()
 
 class AircraftDeviceLife(models.Model):
     aircraft = models.ForeignKey(Aircraft, on_delete=models.CASCADE)

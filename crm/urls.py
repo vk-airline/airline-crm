@@ -1,6 +1,6 @@
 from django.urls import path
 from crm.views import AircraftsDevicesView, AircraftView, EmployeeView, EmployeesView, FlightPlanView, \
-    FlightPlansView, FlightsView, index, AircraftsView, FlightView, FlightPlanDelete, FlightDelete
+    FlightPlansView, FlightsView, index, AircraftsView, FlightView, FlightPlanDelete, FlightDelete, FlightDeparture, FlightArrival, FuelView
 
 app_name = "crm"
 urlpatterns = [
@@ -16,5 +16,9 @@ urlpatterns = [
     path('flightplans/', FlightPlansView.as_view(), name='flight plans'),
     path('flightplans/<int:pk>', FlightPlanView.as_view(), name='edit flight plan'),
     path('flightplans/<int:pk>/delete/', FlightPlanDelete.as_view(), name='delete flight plan'),
-    path('flightplans/add', FlightPlanView.as_view(), name='add flight plan')
+    path('flightplans/add', FlightPlanView.as_view(), name='add flight plan'),
+    path('api/flights/<int:pk>/departure/',
+         FlightDeparture.as_view(), name='flight_departure'),
+    path('api/flights/<int:pk>/arrival/', FlightArrival.as_view(), name='flight_arrival'),
+    path('api/aircrafts/<int:pk>/fuel/', FuelView.as_view(), name='aircraft_fuel' )
 ]
