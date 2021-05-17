@@ -23,7 +23,7 @@
   },
     {
     "model": "crm.employeelog",
-    "pk": 2,
+    "pk": 3,
     "fields": {
       "employee": 12,
       "disability_start": "2021-05-17T00:00:00Z",
