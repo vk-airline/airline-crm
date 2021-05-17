@@ -114,6 +114,11 @@ class FlightView(PermissionRequiredMixin, FormView):
             form_kwargs['instance'] = Flight.objects.get(pk=int(self.kwargs['pk']))
         return form_kwargs
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['employees'] = list(e for e in Flight.objects.get(pk=self.kwargs['pk']).employees.all())
+        return context
+
     def form_valid(self, form):
         # Logic that checks updates
         form.save()
@@ -186,6 +191,7 @@ class EmployeeView(LoginRequiredMixin, DetailView):
             planning_departure_datetime__gte=timezone.now() - config.show_past_flights_time,
             planning_departure_datetime__lte=timezone.now() + config.show_future_flights_time
         ).order_by('planning_departure_datetime')
+
         add_flights_data_to_context(context, flights)
         return context
 

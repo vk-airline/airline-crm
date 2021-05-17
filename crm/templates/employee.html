@@ -8,73 +8,78 @@
 <body>
 {% include "menu.html" %}
 <div class="container-fluid">
-    <div class="row">
-        <div class="w-50">
-            <div class="row">
-                <div class="col text-end">
-                    <h2> First name:</h2>
+    <div class="row m-5">
+        <div class="col h-100 d-flex align-self-center justify-content-center">
+            <div class="container-fluid">
+                <div class="col">
+                    <div class="row">
+                        <div class="col text-end">
+                            <h3> First name:</h3>
 
-                </div>
-                <div class="col text-center">
-                    <h2>{{ object.user.first_name }}</h2>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col text-end">
-                    <h2> Username:</h2>
-                </div>
-                <div class="col text-center">
-                    <h2>{{ object.user }}</h2>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col text-end">
-                    <h2> Last name:</h2>
-                </div>
-                <div class="col text-center">
-                    <h2> {{ object.user.last_name }}</h2>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col text-end">
-                    <h2> Occupation:</h2>
-                </div>
-                <div class="col text-center">
-                    <h2>{{ object.occupation }}</h2>
+                        </div>
+                        <div class="col text-start">
+                            <h3>{{ object.user.first_name }}</h3>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col text-end">
+                            <h3> Last name:</h3>
+                        </div>
+                        <div class="col text-start">
+                            <h3> {{ object.user.last_name }}</h3>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col text-end">
+                            <h3> Username:</h3>
+                        </div>
+                        <div class="col text-start">
+                            <h3>{{ object.user }}</h3>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col text-end">
+                            <h3> Occupation:</h3>
+                        </div>
+                        <div class="col text-start">
+                            <h3>{{ object.occupation }}</h3>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="row">
         {% if logs %}
-            <h2 class="text-center">Disabilities and logs</h2>
-            <div class="container d-flex ">
-                <div class="card-deck">
-                    {% for log in logs %}
-                        <div class="card m-3 border-secondary p-3">
-                            <h5 class="card-title"> Disability range:</h5>
-                            <h5 class="font-monospace text-end">From: {{ log.disability_start|date:"D d.m.y H:i" }}</h5>
-                            <h5 class="font-monospace text-end">To: {{ log.disability_end|date:"D d.m.y H:i" }}</h5>
-                            <h5 class="card-title">Desription:</h5>
-                            <p class="card-text font-monospace">{{ log.description }}</p>
-                            <h5 class="card-title">Reason: {{ log.get_status_display }}</h5>
-                        </div>
-                        </div>
-                    {% endfor %}
+            <div class="col">
+                <h2 class="text-center">Disabilities and logs</h2>
+                <div class="container d-flex ">
+                    <div class="card-deck justify-content-around">
+                        {% for log in logs %}
+                            <div class="card m-3 border-secondary p-3">
+                                <h5 class="card-title"> Disability range:</h5>
+                                <h5 class="font-monospace text-end">
+                                    From: {{ log.disability_start|date:"D d.m.y H:i" }}</h5>
+                                <h5 class="font-monospace text-end">To: {{ log.disability_end|date:"D d.m.y H:i" }}</h5>
+                                <h5 class="card-title">Desription:</h5>
+                                <p class="card-text font-monospace">{{ log.description }}</p>
+                                <h5 class="card-title">Reason: {{ log.get_status_display }}</h5>
+                            </div>
+                            </div>
+                        {% endfor %}
+                </div>
             </div>
         {% endif %}
     </div>
 
 
+    <div class="row">
+        <h2 class="text-center">Nearest flights</h2>
+    </div>
+    <div class="row">
+        <div class="container-fluid">
+            {% include 'flight_table.html' %}
+        </div>
+    </div>
 </div>
-<div class="row">
-    <h2 class="text-center">Nearest flights</h2>
-</div>
-<div class="row">
-    {% include 'flight_table.html' %}
-</div>
-</div>
-
 {% load static %}
 <script src="{% static 'crm/js/bootstrap.min.js' %}"></script>
 </body>

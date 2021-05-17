@@ -1,12 +1,42 @@
 <!DOCTYPE html>
-<html class="h-100" lang="en">
+<html lang="en">
 <head>
     <title>Flight</title>
     {% include 'header.html' %}
+    <style>
+        .card:hover {
+            background-color: lightblue;
+            transition: 0.5s;
+        }
+
+        a {
+            text-decoration: none;
+        }
+    </style>
 </head>
-<body class="h-100">
+<body>
 {% include 'menu.html' %}
-<div class="container-fluid h-100">
+<div class="container-fluid">
+    <h3>Employees</h3>
+    <div class="row mb-3">
+        {% for e in employees %}
+            <div class="col">
+                <div class="card h-100 p-1 border-secondary">
+                    <div class="card-body d-flex flex-column justify-content-center">
+                        <div class="row">
+                            <h5 class="card-title text-center align-self-start">{{ e.occupation }}</h5>
+                        </div>
+                        <div class="row">
+                            <a href="{% url "crm:employee view" e.pk %}"
+                               class="text-center stretched-link align-self-end fs-5">{{ e.user.first_name }} {{ e.user.last_name }}</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+
+
+    </div>
     <div class="row justify-content-center align-items-center h-100">
         <div class="col-6 p-5 m-5 border border-1 ">
             <form method="post" id="data">{% csrf_token %}
@@ -41,7 +71,8 @@
                     </div>
                     <div class="col">
                         <div class="mb-3">
-                            <label for="id_actual_arrival_datetime" class="form-label fw-bold">Actual arrival datetime</label>
+                            <label for="id_actual_arrival_datetime" class="form-label fw-bold">Actual arrival
+                                datetime</label>
                             {{ form.actual_arrival_datetime }}
                             <div class="text-danger">{{ form.actual_arrival_datetime.errors }}</div>
                         </div>
@@ -78,7 +109,7 @@
                             <div class="col-6 ">
                                 <label for="id_canceled" class="fw-bold text-danger">Canceled </label>
                             </div>
-                        <div class="col-6">
+                            <div class="col-6">
                                 {{ form.canceled }}
                             </div>
                         </div>
