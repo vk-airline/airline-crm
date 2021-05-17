@@ -7,7 +7,7 @@
 <body>
 {% block content %}
     {% include "menu.html" %}
-        <h1 class="text-center">Aircraft devices</h1>
+    <h1 class="text-center">Aircraft devices</h1>
     <table class="table table-hover table-bordered font-monospace text-center">
         <tr>
             <th>Aircraft</th>
@@ -25,9 +25,9 @@
         </tr>
         {% for device in object_list %}
             <tr>
-                <td>{{ device.aircraft }}</td>
+                <td><a href="{% url 'crm:aircraft view' device.aircraft.id %}">{{ device.aircraft.tail_code }}</a></td>
                 <td>{{ device.device_name }}</td>
-                <td>{{ device.latest_update |date:"D d.m.y H:i"}}</td>
+                <td>{{ device.latest_update |date:"D d.m.y H:i" }}</td>
                 <td>{{ device.after_service_cycles }}</td>
                 <td>{{ device.service_cycles_period }}</td>
                 <td>{{ device.total_operation_cycles }}</td>

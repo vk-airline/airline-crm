@@ -1,0 +1,45 @@
+<table class="text-center table table-hover table-bordered font-monospace">
+    <tr class="align-middle border-dark">
+        <th>ID</th>
+        <th>Flight plan</th>
+        <th>Aircraft</th>
+        <th>Source</th>
+        <th>Destination</th>
+        <th>Planning departure datetime</th>
+        <th>Planning arrival datetime</th>
+        <th>Actual departure datetime</th>
+        <th>Actual arrival datetime</th>
+        <th>Actual Destination</th>
+        <th>Warnings</th>
+        <th>Delete</th>
+    </tr>
+    {% for flight, status in flight_status %}
+
+        <tr onclick="window.location='{% url 'crm:edit flight' flight.pk %}'"
+            class="{{ status.1 }} {% if flight.planning_departure_datetime < now %} border-dark {% endif %}
+{% if flight.canceled %}text-decoration-line-through fst-italic{% endif %}">
+            <td>{{ flight.pk }}</td>
+            <td>
+                <a href="{% url 'crm:edit flight plan' flight.flight_plan.pk %}">{{ flight.flight_plan.flight_code }}</a>
+            </td>
+            <td><a href="{% url 'crm:aircraft view' flight.aircraft.id %}">{{ flight.aircraft.tail_code }}</a>
+            </td>
+            <td>{{ flight.flight_plan.source.iata }}</td>
+            <td>{{ flight.flight_plan.destination.iata }}</td>
+            <td>{{ flight.planning_departure_datetime|date:"D d.m.y H:i" }}</td>
+            <td>{{ flight.planning_arrival_datetime|date:"D d.m.y H:i" }}</td>
+            <td>{{ flight.actual_departure_datetime|date:"D d.m.y H:i" }}</td>
+            <td>{{ flight.actual_arrival_datetime|date:"D d.m.y H:i" }}</td>
+            <td>{{ flight.actual_destination.iata }}</td>
+            <td class="text-lg-start">{{ status.0 }}</td>
+            <td>
+                <div class="delete-btn-div">
+                    <button class="btn btn-close btn-outline-danger btn-sm"
+                            onclick="window.location.href='{% url 'crm:delete flight' flight.pk %}'">
+                    </button>
+                </div>
+
+            </td>
+        </tr>
+    {% endfor %}
+</table>

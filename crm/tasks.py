@@ -1,4 +1,5 @@
 import dataclasses
+import math
 from collections import defaultdict
 from datetime import datetime
 from enum import Enum, unique
@@ -9,7 +10,8 @@ from random import choice
 from celery import shared_task
 from django.db.models import Max, Q
 
-from .models import Flight, FlightPlan, Runway, Aircraft, Airport, AircraftDynamicInfo, Employee, ScheduleConfig
+from .models import Flight, FlightPlan, Runway, Aircraft, Airport, AircraftDynamicInfo, Employee, ScheduleConfig, \
+    AircraftDeviceLife
 
 from django.utils import timezone
 from celery.utils.log import get_task_logger
@@ -61,7 +63,7 @@ class ScheduleError(Exception):
 class FlightWarning(Enum):
     OK = 0
     CANCELED = 1
-    FLIGHT_RULES_VIOLATION = 2
+    AIRCRAFT_DEVICE_PROBLEM = 2
     DEPARTURE_DELAY = 3
     ARRIVAL_DELAY = 4
     ARRIVAL_SHIFTED = 5
@@ -70,7 +72,7 @@ class FlightWarning(Enum):
     PREVIOUS_NOT_DEPARTURE_TOO_LONG = 8
     AIRCRAFT_WILL_BE_IN_ANOTHER_AIRPORT = 9
     AIRCRAFT_IN_ANOTHER_AIRPORT = 10
-
+    EMPLOYEE_NOT_AVAILABLE = 11
 
 
 permitted_warnings = [FlightWarning.OK, FlightWarning.ARRIVAL_SHIFTED, FlightWarning.ARRIVAL_DELAY,
@@ -92,7 +94,7 @@ def prev_flight_checks(flight: Flight, flight_status: dict, config: ScheduleConf
     if prev_flight is None:
         if flight.flight_plan.source != flight.flight_plan.destination:
             logger.warning(f"ERROR: There is no prev_flight for: {flight}")
-            flight_status[flight.pk] = FlightWarning.FLIGHT_RULES_VIOLATION
+            flight_status[flight.pk] = FlightWarning.AIRCRAFT_DEVICE_PROBLEM
             return
     logger.info(f"Prev flight {prev_flight} for flight {flight}")
 
@@ -121,13 +123,59 @@ def prev_flight_checks(flight: Flight, flight_status: dict, config: ScheduleConf
             flight_status[flight.pk] = FlightWarning.PREVIOUS_ARRIVED_TO_LATE
 
 
+def get_device_info_dict(device: AircraftDeviceLife) -> dict:
+    return {"device_pk": device.pk,
+            "total_operation_time_h": device.total_operation_time_h,
+            "total_operation_cycles": device.total_operation_cycles,
+            "after_service_time_h": device.after_service_time_h,
+            "after_service_cycles": device.after_service_cycles}
+
+
+def check_aircraft_devices(flight: Flight, devices_predicted_info: dict, update_predicted_info=False):
+    # devices predicted info is the dict where key is device.pk
+    # each value of dict is another dict with the next fields:
+    # {"device_pk": value, "total_operation_time_h": value, "total_operation_cycles": value,
+    #  "after_service_time_h": value, "after_service_cycles": value}
+    devices = AircraftDeviceLife.objects.filter(aircraft=flight.aircraft)
+    flight_time_h = math.ceil((flight.planning_arrival_datetime - flight.planning_departure_datetime).seconds / 3600)
+    for device in devices:
+        device_pred = devices_predicted_info.get(device.pk, get_device_info_dict(device))
+        life_remain = min(device.max_operation_time_h - device_pred["total_operation_time_h"],
+                          device.service_time_period_h - device_pred["after_service_time_h"])
+        cycles_remain = min(device.max_operation_cycles - device_pred["total_operation_cycles"],
+                            device.service_cycles_period - device_pred["after_service_cycles"])
+        if life_remain < flight_time_h or cycles_remain < 1:
+            return False
+        if update_predicted_info:
+            update_device_prediction(flight_time_h, device, devices_predicted_info)
+    return True
+
+
+def update_device_prediction(flight_time, device, devices_predicted_info):
+    device_dict = devices_predicted_info.get(device.pk, get_device_info_dict(device))
+    device_dict['total_operation_time_h'] += flight_time
+    device_dict['total_operation_cycles'] += 1
+    device_dict['after_service_time_h'] += flight_time
+    device_dict['after_service_cycles'] += 1
+    devices_predicted_info[device.pk] = device_dict
+
+
+def check_employee_ready(flight):
+    employees = flight.employees.all()
+    return all(e.is_available(flight.planning_departure_datetime, flight.planning_arrival_datetime) for e in employees)
+
+
 def check_flights_compatibility(flight_query_set):
-    flight_status = {}
+    flight_status, devices_prediction = {}, {}
     config = ScheduleConfig.objects.all().first()
 
     for flight in flight_query_set.order_by('planning_departure_datetime'):
         if flight.canceled:
             flight_status[flight.pk] = FlightWarning.CANCELED
+        elif not check_aircraft_devices(flight, devices_prediction, update_predicted_info=True):
+            flight_status[flight.pk] = FlightWarning.AIRCRAFT_DEVICE_PROBLEM
+        elif not check_employee_ready(flight):
+            flight_status[flight.pk] = FlightWarning.EMPLOYEE_NOT_AVAILABLE
         else:
             prev_flight_checks(flight, flight_status, config)
 
@@ -311,7 +359,7 @@ def assign_employees(self, data):
                       or Airport.objects.get(id=1), start_dt)
         for emp in Employee.objects.all().order_by('id')
     ]
-    plans = set(flights[3] for flights in schedules[0]) # assuming all schedules share flightplans
+    plans = set(flights[3] for flights in schedules[0])  # assuming all schedules share flightplans
     update_plan_status(plans, FlightPlan.PROCESSING_EPM)
 
     variants = []

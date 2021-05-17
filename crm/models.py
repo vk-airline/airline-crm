@@ -123,12 +123,11 @@ class Employee(models.Model):
 
     # checks whether or not an employee is available in range
     # start_date <= is_available? < end_date
-    def is_available(self, start_date, end_date):
+    def is_available(self, start_datetime, end_datetime):
         # if query returns something then employee is not available
         # at some point in the range
         query = Q(employee=self) & ~Q(status=EmployeeLog.OK) & (
-            (Q(disability_end__gte=start_date) & Q(disability_end__lt=end_date)) |
-            (Q(disability_start__gte=start_date) & Q(disability_start__lt=end_date))
+            (Q(disability_end__gte=start_datetime) & Q(disability_start__lt=end_datetime))
         )
         return not bool(EmployeeLog.objects.filter(query))
 

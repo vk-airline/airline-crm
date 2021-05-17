@@ -14,7 +14,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .forms import FlightForm, FlightPlanForm
-from .models import Employee, EmployeeLog, Aircraft, AircraftDeviceLife, AircraftLog, Flight, FlightPlan, ScheduleConfig, AircraftDynamicInfo
+from .models import Employee, EmployeeLog, Aircraft, AircraftDeviceLife, AircraftLog, Flight, FlightPlan, \
+    ScheduleConfig, AircraftDynamicInfo
 from .tasks import check_airports_availability, generate_schedules, assign_employees, create_flights, \
     check_flights_compatibility, FlightWarning
 
@@ -27,7 +28,7 @@ def index(request):
 class AircraftsView(PermissionRequiredMixin, ListView):
     permission_required = "crm.view_aircraft"
     model = Aircraft
-    template_name = "aircrafts.html"
+    template_name = "aircraft_list.html"
 
 
 class AircraftView(PermissionRequiredMixin, DetailView):
@@ -39,10 +40,18 @@ class AircraftView(PermissionRequiredMixin, DetailView):
         return Aircraft.objects.get(id=self.kwargs['pk'])
 
     def get_context_data(self, **kwargs):
+        cfg = ScheduleConfig.objects.first()
         context = super().get_context_data(**kwargs)
         aircraft = self.get_object()
+        now = timezone.now()
         context['devices'] = AircraftDeviceLife.objects.filter(aircraft=aircraft)
         context['logs'] = AircraftLog.objects.filter(aircraft=aircraft).order_by('-event_datetime')
+        flights = Flight.objects.filter(aircraft=self.get_object(),
+                                        planning_departure_datetime__gte=now - cfg.show_past_flights_time,
+                                        planning_departure_datetime__lte=now + cfg.show_future_flights_time).order_by(
+            'planning_departure_datetime')
+        if flights.count():
+            add_flights_data_to_context(context, flights)
         return context
 
 
@@ -55,13 +64,30 @@ class AircraftsDevicesView(PermissionRequiredMixin, ListView):
 class EmployeesView(PermissionRequiredMixin, ListView):
     permission_required = "crm.view_employee"
     model = Employee
-    template_name = "employees.html"
+    template_name = "employee_list.html"
+
+
+def add_flights_data_to_context(context, flights):
+    status_dict = check_flights_compatibility(flights)
+
+    def status_color(status):
+        if status in [FlightWarning.OK]:
+            return "table-success"
+        elif status in [FlightWarning.ARRIVAL_SHIFTED, FlightWarning.ARRIVAL_DELAY,
+                        FlightWarning.DEPARTURE_DELAY]:
+            return "table-warning"
+        else:
+            return "table-danger"
+
+    context['flight_status'] = zip(flights, [
+        (status_dict[flight.pk].name.replace('_', ' '), status_color(status_dict[flight.pk]))
+        for flight in flights])
 
 
 class FlightsView(PermissionRequiredMixin, ListView):
     permission_required = "crm.view_flight"
     model = Employee
-    template_name = "flights.html"
+    template_name = "flight_list.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -72,20 +98,7 @@ class FlightsView(PermissionRequiredMixin, ListView):
             planning_departure_datetime__gte=timezone.now() - config.show_past_flights_time,
             planning_departure_datetime__lte=timezone.now() + config.show_future_flights_time
         ).order_by('planning_departure_datetime')
-        status_dict = check_flights_compatibility(flights)
-
-        def status_color(status):
-            if status in [FlightWarning.OK]:
-                return "table-success"
-            elif status in [FlightWarning.ARRIVAL_SHIFTED, FlightWarning.ARRIVAL_DELAY,
-                            FlightWarning.DEPARTURE_DELAY]:
-                return "table-warning"
-            else:
-                return "table-danger"
-        context['now'] = timezone.now()
-        context['flight_status'] = zip(flights, [
-            (status_dict[flight.pk].name.replace('_', ' '), status_color(status_dict[flight.pk]))
-            for flight in flights])
+        add_flights_data_to_context(context, flights)
         return context
 
 
@@ -116,12 +129,11 @@ class FlightDelete(DeleteView):
 class FlightPlansView(PermissionRequiredMixin, ListView):
     permission_required = "crm.view_flightplan"
     model = FlightPlan
-    template_name = "flightplans.html"
+    template_name = "flightplan_list.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['plans'] = FlightPlan.objects.all().order_by('start_date')
-        context['now'] = timezone.now()
         return context
 
 
@@ -162,12 +174,19 @@ class EmployeeView(LoginRequiredMixin, DetailView):
         return Employee.objects.get(id=self.kwargs['pk'])
 
     def get_context_data(self, **kwargs):
+        config = ScheduleConfig.objects.first()
         context = super().get_context_data(**kwargs)
         context['logs'] = EmployeeLog.objects.filter(
             employee=self.get_object(),
             disability_end__lte=timezone.now() + timezone.timedelta(days=30),
             disability_end__gte=timezone.now()
         ).order_by('disability_start')[:5]
+        flights = Flight.objects.filter(
+            employees__in=[self.get_object()],
+            planning_departure_datetime__gte=timezone.now() - config.show_past_flights_time,
+            planning_departure_datetime__lte=timezone.now() + config.show_future_flights_time
+        ).order_by('planning_departure_datetime')
+        add_flights_data_to_context(context, flights)
         return context
 
 
@@ -213,6 +232,7 @@ class FlightArrival(APIView):
 
         flight.aircraft.landed(hours_flown)
         return Response(status=status.HTTP_200_OK)
+
 
 class FuelView(APIView):
     def get_object(self, pk):

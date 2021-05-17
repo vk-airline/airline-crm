@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    {% include 'header.html' %}
+</head>
+<body>
+{% include "menu.html" %}
+<div class="container-fluid">
+    <h1 class="text-center">Flights</h1>
+    {% include 'flight_table.html' %}
+</div>
+{% load static %}
+<script src="{% static 'crm/js/bootstrap.min.js' %}"></script>
+<script type="text/javascript">
+    document.querySelectorAll('.delete-btn-div').forEach(item => {
+        item.addEventListener('click', evt => {
+            evt.stopPropagation()
+        })
+    })
+</script>
+</body>
+</html>

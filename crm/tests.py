@@ -35,15 +35,23 @@ class EmployeeModelTest(TestCase):
         john = Employee.objects.get(id=12)
         start = datetime.fromisoformat("2021-05-11T00:00:00+00:00")
         end = datetime.fromisoformat("2021-05-13T00:00:00+00:00")
-        self.assertTrue(john.is_available(start, end))
+        with self.subTest():
+            self.assertTrue(john.is_available(start, end))
 
         start2 = end
         end2 = datetime.fromisoformat("2021-05-14T00:00:00+00:00")
-        self.assertFalse(john.is_available(start2, end2))
+        with self.subTest():
+            self.assertFalse(john.is_available(start2, end2))
 
         start3 = start
         end3 = datetime.fromisoformat("2021-05-13T12:00:00+00:00")
-        self.assertFalse(john.is_available(start3, end3))
+        with self.subTest():
+            self.assertFalse(john.is_available(start3, end3))
+
+        start4 = datetime.fromisoformat("2021-05-18T12:00:00+00:00")
+        end4 = datetime.fromisoformat("2021-05-19T12:00:00+00:00")
+        with self.subTest():
+            self.assertFalse(john.is_available(start4, end4))
 
 class AssignEmployeesTest(TestCase):
     fixtures = [
