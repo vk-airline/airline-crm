@@ -71,7 +71,7 @@ def add_flights_data_to_context(context, flights):
     status_dict = check_flights_compatibility(flights)
 
     def status_color(status):
-        if status in [FlightWarning.OK]:
+        if status in [FlightWarning.ARRIVED, FlightWarning.SCHEDULED, FlightWarning.DEPARTED]:
             return "table-success"
         elif status in [FlightWarning.ARRIVAL_SHIFTED, FlightWarning.ARRIVAL_DELAY,
                         FlightWarning.DEPARTURE_DELAY]:

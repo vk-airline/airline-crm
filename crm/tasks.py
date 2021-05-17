@@ -61,7 +61,7 @@ class ScheduleError(Exception):
 
 @unique
 class FlightWarning(Enum):
-    OK = 0
+    ARRIVED = 0
     CANCELED = 1
     AIRCRAFT_DEVICE_PROBLEM = 2
     DEPARTURE_DELAY = 3
@@ -73,17 +73,20 @@ class FlightWarning(Enum):
     AIRCRAFT_WILL_BE_IN_ANOTHER_AIRPORT = 9
     AIRCRAFT_IN_ANOTHER_AIRPORT = 10
     EMPLOYEE_NOT_AVAILABLE = 11
+    SCHEDULED = 12
+    DEPARTED = 13
 
 
-permitted_warnings = [FlightWarning.OK, FlightWarning.ARRIVAL_SHIFTED, FlightWarning.ARRIVAL_DELAY,
-                      FlightWarning.DEPARTURE_DELAY]
+permitted_warnings = [FlightWarning.ARRIVED, FlightWarning.SCHEDULED, FlightWarning.DEPARTED,
+                      FlightWarning.ARRIVAL_SHIFTED,
+                      FlightWarning.ARRIVAL_DELAY, FlightWarning.DEPARTURE_DELAY]
 
 
 def get_previous_flight(flight: Flight, flight_status: dict):
     flights = Flight.objects.filter(planning_departure_datetime__lt=flight.planning_departure_datetime,
                                     aircraft=flight.aircraft, canceled=False).order_by('-planning_arrival_datetime')
     for prev_flight_candidate in flights:
-        departed = FlightWarning.OK if prev_flight_candidate.actual_departure_datetime is not None else None
+        departed = FlightWarning.ARRIVED if prev_flight_candidate.actual_departure_datetime is not None else None
         if flight_status.get(prev_flight_candidate.pk, departed) in permitted_warnings:
             return prev_flight_candidate
     return None
@@ -193,7 +196,15 @@ def check_flights_compatibility(flight_query_set):
                     arrival_shifting = flight.actual_arrival_datetime - flight.planning_arrival_datetime
                     if arrival_shifting > config.warning_arrival_shifted_time:
                         flight_status[flight.pk] = FlightWarning.ARRIVAL_SHIFTED
-        flight_status[flight.pk] = flight_status.get(flight.pk, FlightWarning.OK)
+        if flight.pk not in flight_status:
+            if flight.actual_arrival_datetime is None:
+                if flight.actual_departure_datetime is None:
+                    flight_status[flight.pk] = FlightWarning.SCHEDULED
+                else:
+                    flight_status[flight.pk] = FlightWarning.DEPARTED
+            else:
+                flight_status[flight.pk] = FlightWarning.ARRIVED
+
     return flight_status
 
 
