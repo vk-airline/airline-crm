@@ -97,8 +97,10 @@ def prev_flight_checks(flight: Flight, flight_status: dict, config: ScheduleConf
     if prev_flight is None:
         if flight.flight_plan.source != flight.flight_plan.destination:
             logger.warning(f"ERROR: There is no prev_flight for: {flight}")
-            flight_status[flight.pk] = FlightWarning.AIRCRAFT_DEVICE_PROBLEM
+            flight_status[flight.pk] = FlightWarning.CANCELED
             return
+        flight_status[flight.pk] = FlightWarning.DEPARTED
+        return
     logger.info(f"Prev flight {prev_flight} for flight {flight}")
 
     prev_approx_duration = prev_flight.planning_arrival_datetime - prev_flight.planning_departure_datetime
@@ -295,7 +297,7 @@ def generate_single_schedule(flights_info, banned_flights):
             if aircraft is None:
                 return None, [plan.pk,
                               f"Cannot create flight by plan {plan.pk} with departure: {departure}. There is no "
-                              f"available aircraft. All aircraft list: {available_aircraft[plan.source]}"]
+                              f"available aircraft. All aircrafts: {available_aircraft[plan.source]}"]
             available_aircraft[plan.source].remove(aircraft)
             logger.info(f"Aircraft: {aircraft} departure from {plan.source}")
             in_flight.append((arrival + config.min_between_flights_delay_minutes, plan.destination, aircraft))

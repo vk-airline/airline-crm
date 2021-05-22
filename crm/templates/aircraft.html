@@ -77,7 +77,7 @@
     {% if perms.crm.view_aircraftlog %}
         <hr>
         <h2>Logs</h2>
-        <table style="width:100%">
+        <table class="table mb-3" style="width:100%">
             <tr>
                 <th>Event datetime</th>
                 <th>Event description</th>
@@ -87,7 +87,7 @@
                 <tr>
                     <td>{{ log.event_datetime }}</td>
                     <td>{{ log.event_description }}</td>
-                    <td>{{ log.event_type }}</td>
+                    <td>{{ log.get_event_type_display }}</td>
                 </tr>
             {% endfor %}
         </table>
