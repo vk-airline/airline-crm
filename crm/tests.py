@@ -172,7 +172,6 @@ class TestFlightPlanPage(TestCase):
         response = self.client.get('/crm/flightplans', follow=True)
         with self.subTest(msg='Request successful'):
             self.assertEquals(response.status_code, 200)
-        print(response.render)
         required_elements = ['<nav class="navbar', '>Add new flight plan', 'LED-SVO</a>',
                              'Plan code', 'Source', 'Destination', 'Planning departure', 'Planning arrival',
                              'Passenger capacity', 'Start date', 'End date', 'Days of week', 'Status', 'Delete']
